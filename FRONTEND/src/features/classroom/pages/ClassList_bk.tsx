@@ -1,5 +1,5 @@
 import {useNavigate} from "react-router";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {Box, Button, Grid, InputAdornment, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -8,20 +8,6 @@ import { mockClasses } from '../../../data'
 
 
 const ClassList = () => {
-
-    /* ==========================================================================================
-     * useEffect
-     * ========================================================================================== */
-
-    useEffect(() => {
-
-    }, []);
-
-
-
-
-
-
 
     const navigate = useNavigate();
 

@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router";
 import {
     Box,
@@ -10,15 +10,24 @@ import {
     Typography,
     Checkbox,
     FormControlLabel,
-    TextField,
+    TextField, CircularProgress,
 } from "@mui/material";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import type {AppDispatch} from "../store";
+import {useDispatch, useSelector} from "react-redux";
+import type {RootState} from "../store/rootReducer.ts";
+import {loginUser} from "../store/authThunks.ts";
+import {toast} from "react-toastify";
 
 
 const Login = () => {
 
     const navigate = useNavigate();
+    const dispatch: AppDispatch = useDispatch()
+
+    // Lấy state [loading], [error] từ Redux
+    const { loading, error } = useSelector((state: RootState) => state.auth)
 
     /* ==========================================================================================
      * State
@@ -26,13 +35,15 @@ const Login = () => {
 
     // State quản lý form
     const [formData, setFormData] = useState({
-        email: "",
-        password: "",
+        email: "tester1234@gmail.com",
+        password: "123456789",
         rememberMe: false,
     })
 
     // State ẩn/hiện mật khẩu
     const [showPassword, setShowPassword] = useState(false)
+    // State thông báo validate
+    const [errors, setErrors] = useState({ email: '', password: '' });
 
 
     /* ==========================================================================================
@@ -45,16 +56,69 @@ const Login = () => {
         setFormData(prev => ({
             ...prev,
             [field]: value
-        }))
+        }));
+
+        // Xóa lỗi khi người dùng bắt đầu nhập lại
+        if (errors[field as keyof typeof errors]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    }
+
+    // VALIDATE:
+    const validateForm = (): boolean => {
+        let isValid = true;
+        const newErrors = {
+            email: '',
+            password: ''
+        };
+
+        // Email
+        if (!formData.email) {
+            newErrors.email = 'Email không được để trống';
+            isValid = false
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = 'Email không hợp lệ';
+            isValid = false
+        }
+
+        // Password
+        if (!formData.password) {
+            newErrors.password = 'Mật khẩu không được để trống';
+            isValid = false;
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+            isValid = false
+        }
+
+        setErrors(newErrors);
+        return isValid
     }
 
     // Nhấn nút đăng nhập
-    const onLogin = () => {
-        // ...logic đăng nhập
-        console.log('Đăng nhập dữ liệu: ', formData)
+    const onLogin = async () => {
+       if (!validateForm()) {
+           return;
+       }
+
+       const resultAction = await dispatch(loginUser({
+           email: formData.email,
+           password: formData.password,
+       }))
+
         // Đăng nhập thành công -> sang trang ('/classes)
-        navigate('/classes')
+        if (loginUser.fulfilled.match(resultAction)) {
+            toast.success('Đăng nhập thành công!');
+            navigate('/classes');
+        }
     }
+
+    // Hiển thị Toast nếu có lỗi
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
 
     // Nhấn link đăng ký
     const onRegister = () => {
@@ -236,6 +300,9 @@ const Login = () => {
                                     type="email"
                                     placeholder="Nhập email"
                                     autoComplete="email"
+                                    error={!!errors.email} // -> !! chuyển giá trị đó thành kiểu boolean
+                                    helperText={errors.email}   // ->  Hiển thị thông báo lỗi hoặc gợi ý bên dưới ô input.
+                                    disabled={loading}
                                     InputProps={{
                                         sx: {
                                             height: 50,
@@ -256,7 +323,10 @@ const Login = () => {
                                        required
                                        type={showPassword ? 'text' : 'password'}
                                        placeholder="Nhập mật khẩu"
-                                       autoComplete="current-password"
+                                       autoComplete="current-password" //Trường mật khẩu hiện tại (khi đăng nhập).
+                                       error={!!errors.password}
+                                       helperText={errors.password}
+                                       disabled={loading}
                                        InputProps={{
                                            sx: {
                                                height: 50,
@@ -293,6 +363,7 @@ const Login = () => {
                                                onChange={(e) =>
                                                    onInputChange('rememberMe', e.target.checked
                                                    )}
+                                               disabled={loading}
                                            />
                                        }
                                        label={
@@ -324,8 +395,13 @@ const Login = () => {
                                         }
                                     }}
                                     onClick={onLogin}
+                                    disabled={loading}
                                 >
-                                    Đăng nhập
+                                    {
+                                        loading
+                                        ? <CircularProgress size={24} color="inherit" />
+                                        : 'Đăng nhập'
+                                    }
                                 </Button>
                             </Box>
 

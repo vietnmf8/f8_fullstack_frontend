@@ -15,6 +15,7 @@ import ClassMembers from "../features/classroom/components/tabs/ClassMembers.tsx
 import ExamDetail from "../features/exam/pages/ExamDetail.tsx";
 import QuestionForm from "../features/exam/pages/QuestionForm.tsx";
 import ExamMarkingPage from "../features/exam/pages/ExamMarkingPage.tsx";
+import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const router = createBrowserRouter([
     {
@@ -45,52 +46,57 @@ const router = createBrowserRouter([
 
     {
         path: '/',
-        element: <MainLayout/>,
+        element: <ProtectedRoute/>,
         children: [
             {
-                path: 'classes',
-                element: <ClassList/>
-            },
-            {
-                path: 'class/add',
-                element: <AddClass/>
-            },
-            {
-                path: 'class/:classId',
-                element: <ClassDetail/>,
+                element: <MainLayout/>,
                 children: [
                     {
-                        index: true, // Route mặc định (tab Tổng quan) khi truy cập /class/:classId
-                        element: <ClassOverview/>
+                        path: 'classes',
+                        element: <ClassList/>
                     },
                     {
-                        path: 'exam',
-                        element: <ClassExams/>
+                        path: 'class/add',
+                        element: <AddClass/>
                     },
                     {
-                        path: 'exam/:examId',
-                        element: <ExamDetail />
+                        path: 'class/:classId',
+                        element: <ClassDetail/>,
+                        children: [
+                            {
+                                index: true, // Route mặc định (tab tổng quan) khi truy cập /class/:classId
+                                element: <ClassOverview/>
+                            },
+                            {
+                                path: 'exam',
+                                element: <ClassExams/>
+                            },
+                            {
+                                path: 'exam/:examId',
+                                element: <ExamDetail />
+                            },
+                            {
+                                path: 'exam/:examId/marking',
+                                element: <ExamMarkingPage />
+                            },
+                            {
+                                path: 'exam/:examId/:questionId',
+                                element: <QuestionForm />
+                            },
+                            {
+                                path: 'member',
+                                element: <ClassMembers/>
+                            }
+                        ]
                     },
+
+
+
                     {
-                        path: 'exam/:examId/marking', // Route mới cho trang chấm bài
-                        element: <ExamMarkingPage />
-                    },
-                    {
-                        path: 'exam/:examId/:questionId',
-                        element: <QuestionForm />
-                    },
-                    {
-                        path: 'member',
-                        element: <ClassMembers/>
+                        path: 'profile',
+                        element: <Profile/>
                     }
                 ]
-            },
-
-
-
-            {
-                path: 'profile',
-                element: <Profile/>
             }
         ]
     }

@@ -5,11 +5,17 @@ import HomeIcon from '@mui/icons-material/Home';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useState} from "react";
 import * as React from "react";
+import {useDispatch, useSelector} from "react-redux";
+import type {AppDispatch} from "../features/auth/store";
+import type {RootState} from "../features/auth/store/rootReducer.ts";
+import {logout} from "../features/auth/store/authSlice.ts";
 
 
 const MainLayout = () => {
 
     const navigate = useNavigate();
+    const dispatch: AppDispatch = useDispatch();
+    const { user } = useSelector((state: RootState) => state.auth);
 
     /* ==========================================================================================
      * State
@@ -42,6 +48,7 @@ const MainLayout = () => {
     // Đăng xuất
     const onLogout = () => {
         onMenuClose()
+        dispatch(logout());
         navigate('/login');
     }
 
@@ -151,7 +158,7 @@ const MainLayout = () => {
                                     src="/src/assets/images/user.jpg"
                                     sx={{width: "32px", height: "32px", bgcolor: "#4299e1"}}
                                 >
-                                    V
+                                    {user?.name?.charAt(0).toUpperCase()}
                                 </Avatar>
                             </IconButton>
 
@@ -176,7 +183,7 @@ const MainLayout = () => {
 
                                             }}
                                         >
-                                            Nguyễn Minh Việt
+                                            {user?.name || 'User'}
                                         </Typography>
                                         <Typography
                                             variant="caption"
@@ -187,7 +194,7 @@ const MainLayout = () => {
 
                                             }}
                                         >
-                                            Giáo viên
+                                            {user?.role === 'teacher' ? 'Giáo viên' : 'Học viên'}
                                         </Typography>
                                     </Box>
                                 </Button>

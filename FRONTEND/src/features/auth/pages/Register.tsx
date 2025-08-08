@@ -1,23 +1,46 @@
 import {useNavigate} from "react-router";
-import {useState} from "react";
-import {Box, Button, Paper, TextField, Typography} from "@mui/material";
+import {useEffect, useState} from "react";
+import {Box, Button, CircularProgress, IconButton, InputAdornment, Paper, TextField, Typography} from "@mui/material";
+import {useDispatch, useSelector} from "react-redux";
+import type {AppDispatch} from "../store";
+import type {RootState} from "../store/rootReducer.ts";
+import {registerUser} from "../store/authThunks.ts";
+import {toast} from "react-toastify";
+import {clearError} from "../store/authSlice.ts";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 const Register = () => {
     const navigate = useNavigate();
+    const dispatch: AppDispatch = useDispatch();
+
+    // Lấy state [loading], [error] từ Redux
+    const { loading, error } = useSelector((state: RootState) => state.auth);
 
     /* ==========================================================================================
      * State quản lý form
      * ========================================================================================== */
     const [formData, setFormData] = useState({
-        fullName: "",
+        name: "Viet",
+        email: "nguyenminhviet25@gmail.com",
+        password: "251001",
+        confirmPassword: "251001",
+    });
+
+    const [errors, setErrors] = useState({
+        name: "",
         email: "",
         password: "",
         confirmPassword: "",
-    })
+    });
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
     /* ==========================================================================================
      * Các hàm xử lý
      * ========================================================================================== */
+
 
     // Khi thay đổi input
     const onInputChange = (field: string, value: string) => {
@@ -25,17 +48,88 @@ const Register = () => {
             ...prev,
             [field]: value
         }))
+
+        // Xóa lỗi khi người dùng bắt đầu nhập lại
+        if (errors[field as keyof typeof errors]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
+        }
     }
 
-    // Nhấn nút đăng ký
-    const onRegister = () => {
-        // Xử lý logic đăng ký
-        console.log('Đăng ký dữ liệu: ', formData)
+    // Validate form
+    const validateForm = (): boolean => {
+        let isValid = true;
+        const newErrors = {
+            name: "",
+            email: "",
+            password: "",
+            confirmPassword: ""
+        }
+
+        // Name
+        if (!formData.name.trim()) {
+            newErrors.name = "Tên không được để trống";
+            isValid = false;
+        }
+
+        // Email
+        if (!formData.email) {
+            newErrors.email = "Tên không được để trống";
+            isValid = false;
+        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Email không hợp lệ";
+            isValid = false;
+        }
+
+        // Password
+        if (!formData.password) {
+            newErrors.password = "Mật khẩu không được để trống";
+            isValid = false;
+        } else if (formData.password.length < 6) {
+            newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+            isValid = false;
+        }
+
+        // Confirm Password
+        if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = "Mật khẩu không khớp";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
     }
+
+
+    // Nhấn nút đăng ký
+    const onRegister = async () => {
+        if (!validateForm()) {
+            return
+        }
+
+        const resultAction = await dispatch(registerUser({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            role: "student",
+            status: "confirming"
+        }))
+
+        if (registerUser.fulfilled.match(resultAction)) {
+            toast.success("Đăng ký thành công!");
+            navigate('/login');
+        }
+    }
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+            dispatch(clearError()); // Xóa lỗi sau khi hiển thị
+        }
+    }, [error, dispatch]);
 
     // Nhấn nút huỷ
     const onCancel = () => {
-        navigate("/");
+        navigate("/login");
     }
 
 
@@ -132,6 +226,9 @@ const Register = () => {
                         required
                         autoComplete="off"
                         placeholder="Nhập tên của bạn"
+                        error={!!errors.name}
+                        helperText={errors.name}
+                        disabled={loading}
                         InputProps={{
                             sx: {
                                 height: 45,
@@ -139,10 +236,10 @@ const Register = () => {
                                 borderRadius: '8px',
                             }
                         }}
-                        value={formData.fullName}
+                        value={formData.name}
                         onChange={(e) =>
-                            onInputChange('fullName', e.target.value
-                            )}
+                            onInputChange('name', e.target.value
+                        )}
                     />
                 </Box>
 
@@ -166,12 +263,15 @@ const Register = () => {
                         type="email"
                         autoComplete="off"
                         placeholder="Nhập địa chỉ email"
+                        error={!!errors.email}
+                        helperText={errors.email}
+                        disabled={loading}
                         InputProps={{
                             sx: {
                                 height: 45,
                                 fontSize: '16px',
                                 borderRadius: '8px',
-                            }
+                            },
                         }}
                         value={formData.email}
                         onChange={(e) =>
@@ -198,15 +298,25 @@ const Register = () => {
                     <TextField
                         fullWidth
                         required
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         autoComplete="off"
                         placeholder="Nhập mật khẩu"
+                        error={!!errors.password}
+                        helperText={errors.password}
+                        disabled={loading}
                         InputProps={{
                             sx: {
                                 height: 45,
                                 fontSize: '16px',
                                 borderRadius: '8px',
-                            }
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
                         }}
                         value={formData.password}
                         onChange={(e) =>
@@ -232,15 +342,25 @@ const Register = () => {
                     <TextField
                         fullWidth
                         required
-                        type="password"
+                        type={showConfirmPassword ? 'text' : 'password'}
                         autoComplete="off"
                         placeholder="Nhập lại mật khẩu"
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword}
+                        disabled={loading}
                         InputProps={{
                             sx: {
                                 height: 45,
                                 fontSize: '16px',
                                 borderRadius: '8px',
-                            }
+                            },
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                                        {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                    </IconButton>
+                                </InputAdornment>
+                            )
                         }}
                         value={formData.confirmPassword}
                         onChange={(e) =>
@@ -263,6 +383,7 @@ const Register = () => {
                             mr: 1,
                         }}
                         onClick={onCancel}
+                        disabled={loading}
                     >
                         Huỷ
                     </Button>
@@ -281,8 +402,9 @@ const Register = () => {
                             border: 'none',
                         }}
                         onClick={onRegister}
+                        disabled={loading}
                     >
-                        Đăng ký
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Đăng ký'}
                     </Button>
                 </Box>
             </Box>
