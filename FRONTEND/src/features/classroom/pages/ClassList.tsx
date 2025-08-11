@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ClassCard from '../components/ClassCard.tsx'
 import { mockClasses } from '../../../data'
+import {getClassListApi} from "../services/classApi.ts";
 
 
 const ClassList = () => {
@@ -14,13 +15,8 @@ const ClassList = () => {
      * ========================================================================================== */
 
     useEffect(() => {
-
+        getClassListApi()
     }, []);
-
-
-
-
-
 
 
     const navigate = useNavigate();

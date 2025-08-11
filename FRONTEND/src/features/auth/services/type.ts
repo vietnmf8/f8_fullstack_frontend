@@ -1,9 +1,10 @@
 /* Login Payload */
-import type {InternalAxiosRequestConfig} from "axios";
+import type {AxiosError, InternalAxiosRequestConfig} from "axios";
 
 export interface LoginPayLoad {
     email: string;
     password?: string;
+    rememberMe?: boolean
 }
 
 /* Register Payload */
@@ -29,7 +30,7 @@ export interface AuthResponse {
 /* Các request lỗi khi đang chờ token mới */
 export interface FailedRequest {
     resolve: (config: InternalAxiosRequestConfig) => void;
-    reject: (error: any) => void;
+    reject: (error: AxiosError | unknown) => void;
     config: InternalAxiosRequestConfig;
 }
 

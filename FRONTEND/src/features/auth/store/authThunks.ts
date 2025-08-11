@@ -4,6 +4,7 @@ import type {DecodedUser, LoginPayLoad, RegisterPayLoad} from "../services/type.
 import {loginApi, registerApi} from "../services/authApi.ts";
 import Cookies from 'js-cookie';
 import {jwtDecode} from "jwt-decode";
+import {AxiosError} from "axios";
 
 
 // Hành động: Đăng nhập
@@ -14,9 +15,13 @@ export const loginUser = createAsyncThunk(
             const response = await loginApi(payload);
             console.log(response)
 
+            // Cấu hình cookie
+            // 7 ngày nếu rememberMe = true
+            const cookieOptions = payload.rememberMe ? { expires: 7 } : undefined;
+
             // Lưu token vào cookie
-            Cookies.set('accessToken', response.access);
-            Cookies.set('refreshToken', response.refresh);
+            Cookies.set('accessToken', response.access, cookieOptions);
+            Cookies.set('refreshToken', response.refresh, cookieOptions);
 
             // Giải mã accessToken -> lấy thông tin user
             const decodedUser: DecodedUser = jwtDecode(response.access);
@@ -26,9 +31,13 @@ export const loginUser = createAsyncThunk(
                 accessToken: response.access
             }
         }
-        catch (error: any) {
-            // Trả về lỗi để reducer xử lý
-            return rejectWithValue(error.response?.data?.message || 'Email hoặc mật khẩu không đúng');
+        catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                // Trả về lỗi để reducer xử lý
+                return rejectWithValue(error.response?.data?.message || 'Email hoặc mật khẩu không đúng');
+            }
+            return rejectWithValue('Email hoặc mật khẩu không đúng');
+
         }
     }
 )
@@ -64,16 +73,19 @@ export const registerUser = createAsyncThunk(
             console.log("API Register Response:", response);
             return response
         }
-        catch (error: any) {
-            const errorData = error.response?.data;
-            console.log(errorData)
-            let errorMessage = 'Đăng ký không thành công. Vui lòng thử lại.';
+        catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                const errorData = error.response?.data;
+                console.log(errorData)
+                let errorMessage = 'Đăng ký không thành công. Vui lòng thử lại.';
 
-            if (errorData && errorData.email && Array.isArray(errorData.email)) {
-                errorMessage = "Email này đã tồn tại.";
+                if (errorData && errorData.email && Array.isArray(errorData.email)) {
+                    errorMessage = "Email này đã tồn tại.";
+                }
+
+                return rejectWithValue(errorMessage);
             }
-
-            return rejectWithValue(errorMessage);
+            return rejectWithValue("Đăng ký không thành công. Vui lòng thử lại.");
         }
     }
 )

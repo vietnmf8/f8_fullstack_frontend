@@ -9,6 +9,7 @@ import {useDispatch, useSelector} from "react-redux";
 import type {AppDispatch} from "../features/auth/store";
 import type {RootState} from "../features/auth/store/rootReducer.ts";
 import {logout} from "../features/auth/store/authSlice.ts";
+import {toast} from "react-toastify";
 
 
 const MainLayout = () => {
@@ -49,6 +50,7 @@ const MainLayout = () => {
     const onLogout = () => {
         onMenuClose()
         dispatch(logout());
+        toast.success('Đăng xuất thành công!');
         navigate('/login');
     }
 

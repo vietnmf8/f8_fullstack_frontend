@@ -21,10 +21,10 @@ const Register = () => {
      * State quản lý form
      * ========================================================================================== */
     const [formData, setFormData] = useState({
-        name: "Viet",
-        email: "nguyenminhviet25@gmail.com",
-        password: "251001",
-        confirmPassword: "251001",
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
     });
 
     const [errors, setErrors] = useState({

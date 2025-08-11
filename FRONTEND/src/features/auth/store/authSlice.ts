@@ -20,7 +20,7 @@ const getInitialUser = (): DecodedUser | null => {
     if (token) {
         try {
             return jwtDecode<DecodedUser>(token);
-        } catch (e) {
+        } catch {
             return null;
         }
     }
@@ -50,6 +50,7 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.accessToken = null;
+            // Chỉ xóa token, không xóa email đã ghi nhớ
             Cookies.remove('accessToken');
             Cookies.remove('refreshToken');
         },

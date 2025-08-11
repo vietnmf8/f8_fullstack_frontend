@@ -19,6 +19,7 @@ import {useDispatch, useSelector} from "react-redux";
 import type {RootState} from "../store/rootReducer.ts";
 import {loginUser} from "../store/authThunks.ts";
 import {toast} from "react-toastify";
+import Cookies from "js-cookie";
 
 
 const Login = () => {
@@ -33,10 +34,11 @@ const Login = () => {
      * State
      * ========================================================================================== */
 
+    
     // State quản lý form
     const [formData, setFormData] = useState({
-        email: "tester1234@gmail.com",
-        password: "123456789",
+        email: "",
+        password: "",
         rememberMe: false,
     })
 
@@ -45,6 +47,34 @@ const Login = () => {
     // State thông báo validate
     const [errors, setErrors] = useState({ email: '', password: '' });
 
+
+
+
+/* ==========================================================================================
+ * useEffect
+ * ========================================================================================== */
+
+    // Hiển thị Toast nếu có lỗi
+    useEffect(() => {
+        if (error) {
+            toast.error(error);
+        }
+    }, [error]);
+
+
+    // Tự động điền email nếu có trong cookie
+    useEffect(() => {
+        const rememberedEmail = Cookies.get('rememberedEmail');
+        if (rememberedEmail) {
+            setFormData(prev => ({
+                ...prev,
+                email: rememberedEmail,
+                rememberMe: true
+            }));
+        }
+    }, []);
+
+    
 
     /* ==========================================================================================
      * Logic
@@ -103,21 +133,27 @@ const Login = () => {
        const resultAction = await dispatch(loginUser({
            email: formData.email,
            password: formData.password,
+           rememberMe: formData.rememberMe,
        }))
 
         // Đăng nhập thành công -> sang trang ('/classes)
         if (loginUser.fulfilled.match(resultAction)) {
+
+            if (formData.rememberMe) {
+                // Lưu email trong 30 ngày
+                Cookies.set('rememberedEmail', formData.email, { expires: 30 })
+            }
+            // Xóa email nếu không check
+            else {
+                Cookies.remove('rememberedEmail')
+            }
+
             toast.success('Đăng nhập thành công!');
             navigate('/classes');
         }
     }
 
-    // Hiển thị Toast nếu có lỗi
-    useEffect(() => {
-        if (error) {
-            toast.error(error);
-        }
-    }, [error]);
+    
 
 
     // Nhấn link đăng ký
