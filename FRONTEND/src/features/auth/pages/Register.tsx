@@ -110,7 +110,8 @@ const Register = () => {
             name: formData.name,
             email: formData.email,
             password: formData.password,
-            role: "student",
+            role: "teacher",
+            // role: "student",
             status: "confirming"
         }))
 

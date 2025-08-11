@@ -1,7 +1,7 @@
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import type {DecodedUser} from "../services/type.ts";
-import {loginUser, registerUser} from "./authThunks.ts";
+import {checkAuth, loginUser, registerUser} from "./authThunks.ts";
 import {jwtDecode} from "jwt-decode";
 
 // Kiểu dữ liệu cho state của auth
@@ -11,6 +11,7 @@ interface AuthState {
     accessToken: string | null;
     loading: boolean;
     error: string | null;
+    isInitialized: boolean;
 }
 
 
@@ -34,6 +35,7 @@ const initialState: AuthState = {
     accessToken: Cookies.get('accessToken') || null,
     loading: false,
     error: null,
+    isInitialized: false,
 };
 
 
@@ -109,6 +111,32 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
+
+
+            /* checkAuth */
+            // checkAuth đang chạy:
+            .addCase(checkAuth.pending, (state) => {
+                state.loading = true;
+            })
+
+            // checkAuth thành công:
+            .addCase(checkAuth.fulfilled, (state, action) => {
+                if (action.payload?.accessToken) {
+                    state.accessToken = action.payload.accessToken
+                    state.user = jwtDecode<DecodedUser>(action.payload.accessToken);
+                }
+                state.isInitialized = true;
+                state.loading = false;
+            })
+
+            // checkAuth thất bại:
+            .addCase(checkAuth.rejected, (state) => {
+                state.user = null;
+                state.accessToken = null;
+                state.isInitialized = true;
+                state.loading = false;
+            })
+
     }
 })
 

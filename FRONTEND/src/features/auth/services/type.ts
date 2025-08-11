@@ -11,7 +11,7 @@ export interface LoginPayLoad {
 export interface RegisterPayLoad {
     name: string;
     email: string;
-    role: 'student';
+    role: 'student' | 'teacher';
     status: 'confirming';
     password?: string;
 }

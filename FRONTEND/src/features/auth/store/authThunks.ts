@@ -1,10 +1,12 @@
 /* Xử lý đăng nhập */
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import type {DecodedUser, LoginPayLoad, RegisterPayLoad} from "../services/type.ts";
-import {loginApi, registerApi} from "../services/authApi.ts";
+import {loginApi, refreshTokenApi, registerApi} from "../services/authApi.ts";
 import Cookies from 'js-cookie';
 import {jwtDecode} from "jwt-decode";
 import {AxiosError} from "axios";
+import {isTokenExpired} from "../services/authService.ts";
+import {logout} from "./authSlice.ts";
 
 
 // Hành động: Đăng nhập
@@ -87,5 +89,54 @@ export const registerUser = createAsyncThunk(
             }
             return rejectWithValue("Đăng ký không thành công. Vui lòng thử lại.");
         }
+    }
+)
+
+
+
+// Hành động: Kiểm tra trạng thái đăng nhập khi lần đầu mount
+export const checkAuth = createAsyncThunk(
+    'auth/checkAuth',
+    async (_, { dispatch, rejectWithValue }) => {
+        const accessToken = Cookies.get('accessToken');
+        const refreshToken = Cookies.get('refreshToken');
+
+        // TH1: Không có access token
+        if (!accessToken) {
+            return rejectWithValue('No access token');
+        }
+
+        // TH2: Access token còn hạn
+        if (!isTokenExpired(accessToken)) {
+            return { accessToken };
+        }
+
+        // TH3: Access token hết hạn -> RefreshToken
+        if (refreshToken) {
+            try {
+                const response = await refreshTokenApi({refresh: refreshToken});
+                const { access: newAccessToken, refresh: newRefreshToken } = response;
+
+                // Lưu token mới vào cookie
+                Cookies.set('accessToken', newAccessToken);
+                Cookies.set('refreshToken', newRefreshToken);
+
+                // Trả về token mới để cập nhật state
+                return { accessToken: newAccessToken };
+            }
+
+            catch (error: unknown) {
+                if (error instanceof AxiosError) {
+                    // -> Đăng xuất
+                    dispatch(logout());
+                    return rejectWithValue('Refresh token failed');
+                }
+                return rejectWithValue('Refresh token failed');
+            }
+        }
+
+        // TH4: Access token hết hạn, không có refresh token -> Logout
+        dispatch(logout());
+        return rejectWithValue('Access token expired and no refresh token');
     }
 )

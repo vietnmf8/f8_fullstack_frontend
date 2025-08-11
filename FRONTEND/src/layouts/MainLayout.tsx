@@ -124,18 +124,23 @@ const MainLayout = () => {
                     {/* Menu Navigation */}
                     <Box sx={{display: "flex", gap: 3, alignItems: 'center'}}>
                         {/* Nút tạo lớp */}
-                        <Button
-                            variant="outlined"
-                            startIcon={<AddIcon/>}
-                            sx={{
-                                textTransform: 'none',
-                                fontSize: '16px',
-                                height: 40,
-                            }}
-                            onClick={() => onMenuClick('/class/add')}
-                        >
-                            Tạo lớp
-                        </Button>
+                        {
+                            user?.role === 'teacher' && (
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<AddIcon/>}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontSize: '16px',
+                                        height: 40,
+                                    }}
+                                    onClick={() => onMenuClick('/class/add')}
+                                >
+                                    Tạo lớp
+                                </Button>
+                            )
+                        }
+
 
                         {/* Nút trang chủ */}
                         <Button

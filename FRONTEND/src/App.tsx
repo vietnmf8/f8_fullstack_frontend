@@ -1,11 +1,19 @@
+import {useDispatch} from "react-redux";
+import type {AppDispatch} from "./features/auth/store";
+import {useEffect} from "react";
+import {checkAuth} from "./features/auth/store/authThunks.ts";
+import { Outlet } from "react-router";
 
 
 function App() {
-  return (
-    <>
-      <h1> Xin chào </h1>
-    </>
-  )
+    const dispatch = useDispatch<AppDispatch>();
+
+    useEffect(() => {
+        // Gọi action kiểm tra trạng thái đăng nhập một lần duy nhất
+        dispatch(checkAuth());
+    }, [dispatch]);
+
+    return <Outlet />;
 }
 
 export default App

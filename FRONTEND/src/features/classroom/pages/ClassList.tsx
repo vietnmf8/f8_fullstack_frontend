@@ -6,9 +6,14 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClassCard from '../components/ClassCard.tsx'
 import { mockClasses } from '../../../data'
 import {getClassListApi} from "../services/classApi.ts";
+import {useSelector} from "react-redux";
+import type {RootState} from "../../auth/store/rootReducer.ts";
 
 
 const ClassList = () => {
+    const navigate = useNavigate();
+    const { user } = useSelector((state: RootState) => state.auth)
+
 
     /* ==========================================================================================
      * useEffect
@@ -19,7 +24,7 @@ const ClassList = () => {
     }, []);
 
 
-    const navigate = useNavigate();
+
 
     /* ==========================================================================================
      * State
@@ -94,27 +99,31 @@ const ClassList = () => {
                 />
 
                 {/* Thêm lớp học */}
-                <Button
-                    variant="text"
-                    sx={
-                        {
-                            ml: 2,
-                            minWidth: 150,
-                            textTransform: 'none',
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            bgcolor: '#ff8e05',
-                            boxShadow: 'none',
-                            color: 'white',
-                            '&:hover': {
-                                bgcolor: '#ffb300'
-                            }
-                        }}
-                    startIcon={<AddIcon/>}
-                    onClick={onAddClass}
-                >
-                    Thêm lớp học
-                </Button>
+                {
+                    user?.role === 'teacher' && (
+                        <Button
+                            variant="text"
+                            sx={
+                                {
+                                    ml: 2,
+                                    minWidth: 150,
+                                    textTransform: 'none',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    bgcolor: '#ff8e05',
+                                    boxShadow: 'none',
+                                    color: 'white',
+                                    '&:hover': {
+                                        bgcolor: '#ffb300'
+                                    }
+                                }}
+                            startIcon={<AddIcon/>}
+                            onClick={onAddClass}
+                        >
+                            Thêm lớp học
+                        </Button>
+                    )
+                }
             </Box>
 
 
