@@ -6,10 +6,12 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {useState} from "react";
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../features/auth/store";
-import type {RootState} from "../features/auth/store/rootReducer.ts";
+import type {AppDispatch} from "../store";
+import type {RootState} from "../store/rootReducer.ts";
 import {logout} from "../features/auth/store/authSlice.ts";
 import {toast} from "react-toastify";
+import userPlaceholder from '../assets/images/user.jpg'; // Import ảnh placeholder
+
 
 
 const MainLayout = () => {
@@ -162,10 +164,10 @@ const MainLayout = () => {
                                 onClick={onUserClick}
                             >
                                 <Avatar
-                                    src="/src/assets/images/user.jpg"
+                                    src={user?.avata?.url || userPlaceholder}
                                     sx={{width: "32px", height: "32px", bgcolor: "#4299e1"}}
                                 >
-                                    {user?.name?.charAt(0).toUpperCase()}
+                                    {!user?.avata?.url && user?.name?.charAt(0).toUpperCase()}
                                 </Avatar>
                             </IconButton>
 

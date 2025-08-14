@@ -126,9 +126,10 @@ export const checkAuth = createAsyncThunk(
             }
 
             catch (error: unknown) {
+                // -> Đăng xuất
+                dispatch(logout());
+
                 if (error instanceof AxiosError) {
-                    // -> Đăng xuất
-                    dispatch(logout());
                     return rejectWithValue('Refresh token failed');
                 }
                 return rejectWithValue('Refresh token failed');

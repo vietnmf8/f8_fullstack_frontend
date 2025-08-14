@@ -1,18 +1,24 @@
 import {useNavigate} from "react-router";
 import {useEffect, useState} from "react";
-import {Box, Button, Grid, InputAdornment, TextField, Typography} from "@mui/material";
+import {Box, Button, CircularProgress, Grid, InputAdornment, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ClassCard from '../components/ClassCard.tsx'
-import { mockClasses } from '../../../data'
-import {getClassListApi} from "../services/classApi.ts";
-import {useSelector} from "react-redux";
-import type {RootState} from "../../auth/store/rootReducer.ts";
+import {useDispatch, useSelector} from "react-redux";
+import type {RootState} from "../../../store/rootReducer.ts";
+import type {AppDispatch} from "../../../store";
+import {fetchClasses} from "../store/classThunks.ts";
+import {useDebounce} from "../../../hooks/useDebounce.ts";
 
 
 const ClassList = () => {
     const navigate = useNavigate();
-    const { user } = useSelector((state: RootState) => state.auth)
+    const dispatch = useDispatch<AppDispatch>();
+
+
+    // Lấy state từ Redux store
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { classes, loading, error } = useSelector((state: RootState) => state.class);
 
 
     /* ==========================================================================================
@@ -20,8 +26,8 @@ const ClassList = () => {
      * ========================================================================================== */
 
     useEffect(() => {
-        getClassListApi()
-    }, []);
+        dispatch(fetchClasses());
+    }, [dispatch]);
 
 
 
@@ -31,6 +37,7 @@ const ClassList = () => {
      * ========================================================================================== */
 
     const [searchTerm, setSearchTerm] = useState("");
+    const debouncedSearchTerm = useDebounce(searchTerm, 500); // Delay 500ms
 
 
     /* ==========================================================================================
@@ -48,9 +55,9 @@ const ClassList = () => {
     }
 
     // Lọc danh sách theo searchTerm
-    const filteredClasses = mockClasses.filter((cls) =>
-        cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cls.classId.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredClasses = classes.filter((cls) =>
+        cls.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        cls.code.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     )
 
     return (
@@ -127,6 +134,27 @@ const ClassList = () => {
             </Box>
 
 
+            {/* Hiển thị loading spinner */}
+            {
+                loading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+                        <CircularProgress />
+                    </Box>
+                )}
+
+
+            {/* Hiển thị lỗi */}
+            {
+                error && !loading && (
+                    <Box sx={{ textAlign: 'center', py: 8 }}>
+                        <Typography variant="h6" color="error">
+                            {error}
+                        </Typography>
+                    </Box>
+                )}
+
+
+
             {/* Classes Grid */}
             <Grid container spacing={3} sx={{mt: 5}}>
                 {
@@ -135,8 +163,8 @@ const ClassList = () => {
                             <ClassCard
                                 id={classItem.id}
                                 name={classItem.name}
-                                memberCount={classItem.memberCount}
-                                classId={classItem.classId}
+                                memberCount={classItem.members_count || 1}
+                                classId={classItem.code}
                             />
                         </Grid>
                     ))
@@ -145,16 +173,16 @@ const ClassList = () => {
 
             {/* Xử lý nếu chưa có lớp học */}
             {
-                filteredClasses.length === 0 && (
+                !loading && !error && filteredClasses.length === 0 && (
                     <Box sx={{
                         textAlign: 'center',
                         py: 8,
                     }}>
                         <Typography variant="h6">
-                            Không tìm thấy lớp học nào!
+                            {debouncedSearchTerm ? 'Không tìm thấy lớp học nào!' : 'Bạn chưa có lớp học nào.'}
                         </Typography>
                         <Typography variant="body2">
-                            Thử thay đổi từ khóa tìm kiếm
+                            {debouncedSearchTerm ? 'Vui lòng thử lại với từ khóa khác.' : (user?.role === 'teacher' ? 'Hãy tạo lớp học đầu tiên của bạn!' : 'Hãy tham gia một lớp học!')}
                         </Typography>
                     </Box>
                 )

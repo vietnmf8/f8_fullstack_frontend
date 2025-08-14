@@ -1,5 +1,5 @@
 import {useDispatch} from "react-redux";
-import type {AppDispatch} from "./features/auth/store";
+import type {AppDispatch} from "./store";
 import {useEffect} from "react";
 import {checkAuth} from "./features/auth/store/authThunks.ts";
 import { Outlet } from "react-router";

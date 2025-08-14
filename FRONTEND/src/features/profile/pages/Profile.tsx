@@ -1,9 +1,24 @@
-import {useState} from "react";
-import {Avatar, Box, Button, Grid, TextField, Typography} from "@mui/material";
+import {useEffect, useRef, useState} from "react";
+import {Avatar, Box, Button, CircularProgress, Grid, TextField, Typography} from "@mui/material";
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import type { AppDispatch } from "../../../store";
+import {useDispatch, useSelector} from "react-redux";
+import type {RootState} from "../../../store/rootReducer.ts";
+import userPlaceholder from '../../../assets/images/user.jpg';
+import * as React from "react";
+import type {UpdateProfilePayload} from "../services/type.ts";
+import { toast } from "react-toastify";
+import {changePassword, updateProfile} from "../store/profileThunks.ts";
 
 
 const Profile = () => {
+
+
+    const dispatch: AppDispatch = useDispatch();
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { loading, passwordLoading } = useSelector((state: RootState) => state.profile);
+
+
 
     /* ==========================================================================================
      * State
@@ -11,25 +26,46 @@ const Profile = () => {
 
     // State quản lý form thông tin cá nhân
     const [profileData, setProfileData] = useState({
-        fullName: "Nguyễn Minh Việt",
-        email: "nguyenminhviet2510@gmail.com",
+        name: "",
+        email: "",
         school: "",
-        parentName: "",
-        parentPhone: "0965 800 392",
+        parent_name: "",
+        parent_phone: "",
     })
+
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [avatarPayload, setAvatarPayload] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
 
     // State quản lý form đổi mật khẩu
     const [passwordData, setPasswordData] = useState({
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
+        old_password: "",
+        new_password: "",
+        confirm_password: "",
     })
+
+    /* ==========================================================================================
+     * useEffect
+     * ========================================================================================== */
+
+    // Tự động điền dữ liệu từ Redux store vào form khi component được mount hoặc user thay đổi
+    useEffect(() => {
+        if (user) {
+            setProfileData({
+                name: user.name || "",
+                email: user.email || "",
+                school: user.school || "",
+                parent_name: user.parent_name || "",
+                parent_phone: user.parent_phone || "",
+            });
+            setAvatarPreview(user.avata?.url || userPlaceholder);
+        }
+    }, [user]);
 
     /* ==========================================================================================
      * Các hàm xử lý
      * ========================================================================================== */
-
-
 
     // Khi thay đổi input thông tin cá nhân
     const onProfileInputChange = (field: string, value: string) => {
@@ -40,6 +76,22 @@ const Profile = () => {
     }
 
 
+    // Xử lý khi chọn file ảnh
+    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                setAvatarPreview(base64String);
+                // Chỉ lấy phần base64 sau dấu phẩy
+                setAvatarPayload(base64String.split(',')[1]);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+
     // Khi thay đổi input mật khẩu
     const onPasswordInputChange = (field: string, value: string) => {
         setPasswordData(prev => ({
@@ -48,16 +100,71 @@ const Profile = () => {
         }));
     };
 
-    // Khi nhấn nút tải lên avatar
+    // Khi nhấn nút "tải lên" avatar
     const onUploadAvatar = () => {
-        console.log('Upload Avatar');
+        fileInputRef.current?.click();
     }
 
 
-    // Khi nhấn nút lưu lại
-    const onSaveProfile = () => {
-        console.log("Lưu thông tin cá nhân:", profileData);
-        console.log("Lưu mật khẩu:", passwordData);
+    // Xử lý lưu thông tin
+    const onSaveProfile = async () => {
+        if (!user) return;
+        if (!profileData.name.trim()) {
+            toast.error('Tên của bạn không được để trống.');
+            return;
+        }
+
+        const payload: UpdateProfilePayload = {
+            ...profileData,
+            avata: {
+                id: user.avata?.id || null,
+                url: user.avata?.url || null,
+                payload: avatarPayload,
+            }
+        };
+
+        try {
+            await dispatch(updateProfile({ userId: user.id, payload })).unwrap();
+            toast.success('Cập nhật thông tin thành công!');
+            // Reset avatar payload sau khi thành công
+            setAvatarPayload(null);
+        } catch (err) {
+            toast.error(err as string);
+        }
+    };
+
+    // xử lý đổi mật khẩu
+    const onChangePassword = async () => {
+        const { old_password, new_password, confirm_password } = passwordData
+
+        // Validate
+        if (!old_password || !new_password || !confirm_password) {
+            toast.error("Vui lòng nhập đầy đủ thông tin.");
+            return;
+        }
+        if (new_password !== confirm_password) {
+            toast.error("Mật khẩu mới không khớp. Vui lòng nhập lại.");
+            return;
+        }
+        if (new_password.length < 6) {
+            toast.error("Mật khẩu mới phải có ít nhất 6 ký tự.");
+            return;
+        }
+
+        try {
+            await dispatch(changePassword({ oldPassword: old_password, newPassword: new_password })).unwrap();
+            toast.success('Đổi mật khẩu thành công!');
+
+            // Reset form
+            setPasswordData({
+                old_password: "",
+                new_password: "",
+                confirm_password: "",
+            });
+        }
+        catch (err) {
+            toast.error(err as string);
+        }
     }
 
 
@@ -76,6 +183,16 @@ const Profile = () => {
                 padding: '40px',
             }}
         >
+
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={onFileChange}
+                style={{ display: 'none' }}
+                accept="image/png, image/jpeg"
+            />
+
+
             {/* Header */}
             <Box>
                 <Typography
@@ -131,8 +248,9 @@ const Profile = () => {
                                 }
                             }}
                             onClick={onSaveProfile}
+                            disabled={loading}
                         >
-                            Lưu lại
+                            {loading ? <CircularProgress size={24} color="inherit" /> : 'Lưu lại'}
                         </Button>
                     </Box>
                 </Box>
@@ -153,8 +271,9 @@ const Profile = () => {
                             fontWeight: '500',
                             color: 'white',
                         }}
+                        src={avatarPreview || userPlaceholder}
                     >
-                        J97
+                        {profileData.name.charAt(0).toUpperCase()}
                     </Avatar>
 
                     <Button
@@ -207,8 +326,8 @@ const Profile = () => {
                                         borderRadius: '8px',
                                     }
                                 }}
-                                value={profileData.fullName}
-                                onChange={(e) => onProfileInputChange('fullName', e.target.value)}
+                                value={profileData.name}
+                                onChange={(e) => onProfileInputChange('name', e.target.value)}
                             />
                         </Grid>
 
@@ -308,8 +427,8 @@ const Profile = () => {
                                         borderRadius: '8px',
                                     }
                                 }}
-                                value={profileData.parentName}
-                                onChange={(e) => onProfileInputChange('parentName', e.target.value)}
+                                value={profileData.parent_name}
+                                onChange={(e) => onProfileInputChange('parent_name', e.target.value)}
                             />
                         </Grid>
 
@@ -340,8 +459,8 @@ const Profile = () => {
                                         borderRadius: '8px',
                                     }
                                 }}
-                                value={profileData.parentPhone}
-                                onChange={(e) => onProfileInputChange('parentPhone', e.target.value)}
+                                value={profileData.parent_phone}
+                                onChange={(e) => onProfileInputChange('parent_phone', e.target.value)}
                             />
                         </Grid>
 
@@ -404,8 +523,8 @@ const Profile = () => {
                                             borderRadius: '8px',
                                         }
                                     }}
-                                    value={passwordData.currentPassword}
-                                    onChange={(e) => onPasswordInputChange('currentPassword', e.target.value)}
+                                    value={passwordData.old_password}
+                                    onChange={(e) => onPasswordInputChange('old_password', e.target.value)}
                                 />
                             </Grid>
 
@@ -438,8 +557,8 @@ const Profile = () => {
                                             borderRadius: '8px',
                                         }
                                     }}
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => onPasswordInputChange('newPassword', e.target.value)}
+                                    value={passwordData.new_password}
+                                    onChange={(e) => onPasswordInputChange('new_password', e.target.value)}
                                 />
                             </Grid>
 
@@ -472,8 +591,8 @@ const Profile = () => {
                                             borderRadius: '8px',
                                         }
                                     }}
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => onPasswordInputChange('confirmPassword', e.target.value)}
+                                    value={passwordData.confirm_password}
+                                    onChange={(e) => onPasswordInputChange('confirm_password', e.target.value)}
                                 />
                             </Grid>
                         </Grid>
@@ -496,9 +615,10 @@ const Profile = () => {
                                 },
                                 mt: 3
                             }}
-                            onClick={onSaveProfile}
+                            onClick={onChangePassword}
+                            disabled={passwordLoading}
                         >
-                            Lưu lại
+                            {passwordLoading ? <CircularProgress size={24} color="inherit" /> : 'Lưu lại'}
                         </Button>
                     </Box>
                 </Box>

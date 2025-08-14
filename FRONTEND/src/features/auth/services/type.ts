@@ -39,13 +39,14 @@ export interface DecodedUser {
     id: number;
     name: string;
     email: string;
+    school: string | null;
     role: 'student' | 'teacher' | 'admin';
     parent_name: string | null;
     parent_phone: string | null;
-    school: string | null;
-    avatar: {
+    avata: {
         id: number | null;
         url: string | null;
+        payload: string | null
     };
     exp: number; // Thời gian hết hạn token
 }

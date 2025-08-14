@@ -1,10 +1,19 @@
 import {useNavigate} from "react-router";
-import {Box, Button, TextField, Typography} from "@mui/material";
-import {useState} from "react";
+import {Box, Button, CircularProgress, TextField, Typography} from "@mui/material";
+import {useEffect, useState} from "react";
+import {useDispatch, useSelector} from "react-redux";
+import type { AppDispatch } from "../../../store";
+import type { RootState } from "../../../store/rootReducer";
+import {toast} from "react-toastify";
+import {createClass} from "../store/classThunks.ts";
 
 const AddClass = () => {
 
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
+
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { loading } = useSelector((state: RootState) => state.class);
 
 
     /* ==========================================================================================
@@ -16,6 +25,24 @@ const AddClass = () => {
         classCode: '',
     })
 
+    const [errors, setErrors] = useState({
+        className: '',
+        classCode: '',
+    });
+
+
+    /* ==========================================================================================
+    * useEffect: Kiểm tra quyền truy cập
+    * ========================================================================================== */
+    useEffect(() => {
+        if (user && user.role !== 'teacher') {
+            toast.error("Bạn không có quyền truy cập trang này.");
+            navigate('/classes');
+        }
+    }, [user, navigate]);
+
+
+
     /* ==========================================================================================
      * Các hàm xử lý
      * ========================================================================================== */
@@ -26,20 +53,59 @@ const AddClass = () => {
             ...prev,
             [field]: value
         }))
+
+        // Xóa lỗi khi người dùng bắt đầu nhập
+        if (errors[field as keyof typeof errors]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
+        }
     }
 
+
+    // Validate form
+    const validateForm = (): boolean => {
+        const newErrors = {className: '', classCode: ''};
+        let isValid = true;
+
+        if (!formData.className.trim()) {
+            newErrors.className = 'Tên lớp học không được để trống.'
+            isValid = false;
+        }
+        if (!formData.classCode.trim()) {
+            newErrors.classCode = 'Mã bảo vệ không được để trống.'
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    }
+
+
     // Khi nhán nút tạo mới
-    const onCreateClass = () => {
-        // Xử lý logic tạo lớp học
-        console.log('Tạo lớp học: ', formData)
-        // Sau khi tạo thành công -> quay về danh sách lớp
-        navigate('/classes');
+    const onCreateClass = async () => {
+        if (!validateForm()) return;
+
+        try {
+            await dispatch(createClass({
+                name: formData.className,
+                code: formData.classCode
+            })).unwrap();
+
+            // Sau khi tạo thành công -> quay về danh sách lớp
+            navigate('/classes');
+        }
+        catch (error) {
+            // Lỗi đã được xử lý và hiển thị toast trong thunk
+            console.error("Failed to create class:", error);
+        }
+
     }
 
     // Khi nhấn Huỷ
     const onCancel = () => {
         navigate('/classes')
     }
+
+
 
     return (
         <Box
@@ -119,6 +185,8 @@ const AddClass = () => {
                             onChange={(e) =>
                                 onInputChange('className', e.target.value)
                             }
+                            error={!!errors.className}
+                            helperText={errors.className}
                         />
                     </Box>
 
@@ -153,6 +221,8 @@ const AddClass = () => {
                             onChange={(e) =>
                                 onInputChange('classCode', e.target.value)
                             }
+                            error={!!errors.classCode}
+                            helperText={errors.classCode}
                         />
                     </Box>
 
@@ -179,6 +249,7 @@ const AddClass = () => {
                                 }
                             }}
                             onClick={onCancel}
+                            disabled={loading}
                         >
                             Huỷ
                         </Button>
@@ -194,8 +265,9 @@ const AddClass = () => {
                                 color: '#fff'
                             }}
                             onClick={onCreateClass}
+                            disabled={loading}
                         >
-                            Tạo mới
+                            {loading ? <CircularProgress size={24} color="inherit" /> : 'Tạo mới'}
                         </Button>
                     </Box>
                 </Box>

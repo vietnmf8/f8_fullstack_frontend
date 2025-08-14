@@ -4,7 +4,7 @@
 * */
 
 import {Navigate, Outlet} from "react-router";
-import type {RootState} from "../features/auth/store/rootReducer.ts";
+import type {RootState} from "../store/rootReducer.ts";
 import {useSelector} from "react-redux";
 import {Box, CircularProgress} from "@mui/material";
 

@@ -3,12 +3,10 @@ import { RouterProvider } from 'react-router'
 import {CssBaseline, ThemeProvider} from "@mui/material";
 import theme from './theme';
 import router from "./router";
-import store from "./features/auth/store";
+import store from "./store";
 import {Provider} from "react-redux";
 import {ToastContainer} from "react-toastify";
-import {setupInterceptors} from "./plugins/api.ts";
 
-setupInterceptors(store);
 
 createRoot(document.getElementById('root')!).render(
     <Provider store={store}> {/* Bọc ứng dụng trong Provider */}

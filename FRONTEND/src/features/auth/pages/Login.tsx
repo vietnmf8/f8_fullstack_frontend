@@ -14,9 +14,9 @@ import {
 } from "@mui/material";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import type {AppDispatch} from "../store";
+import type {AppDispatch} from "../../../store";
 import {useDispatch, useSelector} from "react-redux";
-import type {RootState} from "../store/rootReducer.ts";
+import type {RootState} from "../../../store/rootReducer.ts";
 import {loginUser} from "../store/authThunks.ts";
 import {toast} from "react-toastify";
 import Cookies from "js-cookie";

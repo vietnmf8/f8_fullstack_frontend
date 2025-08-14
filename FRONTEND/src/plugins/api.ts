@@ -1,16 +1,18 @@
-import axios, {type InternalAxiosRequestConfig} from 'axios'
+import axios, {AxiosError, type InternalAxiosRequestConfig} from 'axios'
 import Cookies from "js-cookie";
 import type {FailedRequest} from "../features/auth/services/type.ts";
 import {isTokenExpired} from "../features/auth/services/authService.ts";
 import {logout, setToken} from "../features/auth/store/authSlice.ts";
 import {toast} from "react-toastify";
 import {refreshTokenApi} from "../features/auth/services/authApi.ts";
+import type {Store} from "@reduxjs/toolkit";
+import {API_BASE_URL, API_ENDPOINTS} from "../constants/api.ts";
 /* ==========================================================================================
  * Cấu hình Axios
  * ========================================================================================== */
 
 const api = axios.create({
-    baseURL: 'https://b1u9y178ok.execute-api.ap-southeast-1.amazonaws.com',
+    baseURL: API_BASE_URL,
     timeout: 10000, // 10 giây
     headers: {
         'Content-Type': 'application/json'
@@ -44,18 +46,27 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 
 
 // Tự động đính kèm Access Token vào header của mỗi request.
-export const setupInterceptors = (store: any) => {
+export const setupInterceptors = (store: Store) => {
     api.interceptors.request.use(
         async (config: InternalAxiosRequestConfig) => {
             // Lấy accessToken từ Cookies
             const accessToken = Cookies.get('accessToken');
 
+            const publicEndpoints = [
+                { method: 'post', path: API_ENDPOINTS.LOGIN },
+                { method: 'post', path: API_ENDPOINTS.REGISTER },
+                { method: 'post', path: API_ENDPOINTS.REFRESH_TOKEN }
+            ];
 
-            // Danh sách các đường dẫn không cần xác thực
-            const publicPaths = ['/login/', '/master/user/', '/login/get_new_token/'];
-            if (config.url && publicPaths.some(path => config.url?.includes(path))) {
+            const isPublic = publicEndpoints.some(endpoint =>
+                config.method?.toLowerCase() === endpoint.method && config.url === endpoint.path
+            );
+
+            // Nếu là public endpoint, không cần đính kèm token.
+            if (isPublic) {
                 return config;
             }
+
 
             // Nếu đang trong quá trình refresh token, đưa request vào hàng đợi
             if (isRefreshing) {
@@ -90,17 +101,20 @@ export const setupInterceptors = (store: any) => {
                     if (config.headers) {
                         config.headers.Authorization = `Bearer ${newAccessToken}`;
                     }
-
                     // Xử lý hàng đợi với token mới
                     processQueue(null, newAccessToken);
                     return config;
                 }
-                catch (error: any) {
+                catch (error: unknown) {
                     // Nếu refresh thất bại, đăng xuất người dùng
                     store.dispatch(logout());
                     toast.error("Phiên đã hết hạn. Vui lòng đăng nhập lại.");
-                    processQueue(error, null);
-                    return Promise.reject(error);
+
+                    if (error instanceof Error ||error instanceof AxiosError) {
+                        processQueue(error, null);
+                    } else {
+                        processQueue(new Error('Loi rui!!!'), null);
+                    }
                 }
                 finally {
                     isRefreshing = false;

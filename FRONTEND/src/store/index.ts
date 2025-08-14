@@ -1,5 +1,6 @@
 import {configureStore} from "@reduxjs/toolkit";
 import rootReducer from "./rootReducer.ts";
+import { setupInterceptors } from "../plugins/api.ts";
 
 const store = configureStore({
     reducer: rootReducer,
@@ -9,7 +10,8 @@ const store = configureStore({
     //     }),
 })
 
-
+// Thiết lập interceptors cho axios sau khi store đã được tạo
+setupInterceptors(store);
 
 export type AppDispatch = typeof store.dispatch;
 export default store;
