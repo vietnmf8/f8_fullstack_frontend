@@ -1,11 +1,12 @@
 import {Chip, TableCell, TableRow, Typography} from "@mui/material";
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import {memo} from "react";
+import type {User} from "../../../features/classroom/services/type.ts";
 
 interface MemberItemProps {
     index: number;
     name: string;
-    role: string;
+    role: User['role']; // Sử dụng kiểu 'teacher' | 'student'
     showKey?: boolean; // Prop để điều khiển hiển thị icon
     useChipForRole?: boolean;
 }
@@ -15,16 +16,27 @@ const MemberItem = memo(
     ({index, role, name, showKey, useChipForRole}: MemberItemProps) => {
 
         // Xác định màu chip dựa trên roles
-        const getChipColor = (role: string) => {
-            switch (role.toLowerCase()) {
-                case 'giáo viên':
-                    return {bgcolor: '#fbb6ae', color: 'white'}; // Vàng
-                case 'học sinh':
-                    return {bgcolor: '#22c35e', color: 'white'}; // Xanh lá
+        const getRoleStyle = (role: User['role']) => {
+            switch (role) {
+                case 'teacher':
+                    return {
+                        label: 'Giáo viên',
+                        style: {bgcolor: '#fbb6ae', color: 'white'} //
+                    };
+                case 'student':
+                    return {
+                        label: 'Học sinh',
+                        style: {bgcolor: '#22c35e', color: 'white'} // Xanh lá
+                    };
                 default:
-                    return {bgcolor: '#9e9e9e', color: 'white'}; // Xám
+                    return {
+                        label: 'Không xác định',
+                        style: {bgcolor: '#9e9e9e', color: 'white'} // Xám
+                    };
             }
         }
+
+        const { label, style } = getRoleStyle(role);
 
         return (
             <TableRow
@@ -54,13 +66,13 @@ const MemberItem = memo(
                                 label={role}
                                 size="small"
                                 sx={{
-                                    ...getChipColor(role),
+                                    ...style,
                                     fontSize: '14px',
                                     minWidth: 80
                                 }}
                             />
                         ) : (
-                            <Typography variant="body1">{role}</Typography>
+                            <Typography variant="body1">{label}</Typography>
                         )
                     }
                 </TableCell>
@@ -70,7 +82,7 @@ const MemberItem = memo(
                     {
                         showKey
                         &&
-                        role.toLowerCase() === "giáo viên"
+                        role === "teacher"
                         &&
                         <VpnKeyIcon sx={{fontSize: '18px', color: '#e87117'}}/>
                     }

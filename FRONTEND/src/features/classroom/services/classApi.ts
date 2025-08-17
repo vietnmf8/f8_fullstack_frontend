@@ -1,6 +1,6 @@
 import type {ClassData, CreateClassPayload} from "./type.ts";
 import api from "../../../plugins/api.ts";
-import {API_ENDPOINTS} from "../../../constants/api.ts";
+import {API_ENDPOINTS} from "../../../constants/api_constant.ts";
 
 
 // API để lấy danh sách tất cả các lớp học của người dùng.
