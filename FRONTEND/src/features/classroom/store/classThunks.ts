@@ -1,10 +1,14 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {createClassApi, getClassListApi} from "../services/classApi.ts";
+import {createClassApi, getClassDetailApi, getClassListApi} from "../services/classApi.ts";
 import {AxiosError} from "axios";
 import {toast} from "react-toastify";
 import type {RootState} from "../../../store/rootReducer.ts";
 import type {CreateClassPayload} from "../services/type.ts";
+import {getExamsByClass} from "../../exam/services/examApi.ts";
 
+
+
+/* Class List */
 
 // lấy danh sách lớp học
 export const fetchClasses = createAsyncThunk(
@@ -54,6 +58,34 @@ export const createClass = createAsyncThunk(
                 errorMessage = error.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại.";
             }
             toast.error(errorMessage);
+            return rejectWithValue(errorMessage);
+        }
+    }
+)
+
+
+
+/* Class Detail */
+
+// lấy dữ liệu cho trang chi tiết lớp học.
+export const fetchClassDetails = createAsyncThunk(
+    'class/fetchClassDetails',
+    async (classId: string, { rejectWithValue }) => {
+        try {
+            // Gọi đồng thời cả hai API -> tối ưu tốc độ
+            const [classDetail, exams] = await Promise.all([
+                getClassDetailApi(classId),
+                getExamsByClass(classId)
+            ]);
+
+            return { classDetail, exams }
+        }
+        catch (error: unknown) {
+            const errorMessage = "Không tải được dữ liệu lớp học";
+            toast.error(errorMessage);
+            if (error instanceof AxiosError) {
+                return rejectWithValue(error.response?.data?.message || errorMessage);
+            }
             return rejectWithValue(errorMessage);
         }
     }

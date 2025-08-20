@@ -1,15 +1,11 @@
 import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import MemberItem from "./MemberItem.tsx";
+import type {User} from "../../../features/classroom/services/type.ts";
 
-interface Member {
-    id: string;
-    name: string;
-    role: string;
-    avatar?: string;
-}
+
 
 interface MembersListProps {
-    members: Member[];
+    members: User[];
     title?: string;
 }
 
@@ -45,7 +41,7 @@ const MembersList = ({members, title="Danh sách thành viên"}: MembersListProp
 
                     <TableBody>
                         {
-                            members.map((member: Member, index: number) => (
+                            members.map((member: User, index: number) => (
                                 <MemberItem
                                     key={member.id}
                                     index={index + 1}

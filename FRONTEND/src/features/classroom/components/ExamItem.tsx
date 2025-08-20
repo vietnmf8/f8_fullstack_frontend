@@ -1,25 +1,26 @@
 import {Box, Typography} from "@mui/material";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import {useNavigate, useParams} from "react-router";
+import type {ExamGroup} from "../../../types/exam.ts";
 
 interface ExamItemProps {
-    exam?: {
-        id?: string;
-        title: string,
-        startDate: string,
-    }
+    exam: ExamGroup
 }
 
+// Hàm định dạng ngày từ YYYY-MM-DD sang DD/MM/YYYY
+const formatDate = (dataString: string) => {
+    const [year, month, day] = dataString.split('-');
+    return `${day}/${month}/${year}`
+};
 
-const ExamItem = ({exam}: ExamItemProps) => {
+const ExamItem = ({ exam }: ExamItemProps) => {
 
     /* ==========================================================================================
      * State
      * ========================================================================================== */
 
     const navigate = useNavigate();
-    const { classId } = useParams();
-    console.log(classId);
+    const { classId } = useParams<{ classId: string }>();
 
 
 
@@ -33,8 +34,11 @@ const ExamItem = ({exam}: ExamItemProps) => {
         return null;
     }
 
+    // Xử lý điều hướng đến trang chi tiết bài thi
     const onNavigate = () => {
-        navigate(`/class/${classId}/exam/${exam.id}`);
+        if (classId && exam.id) {
+            navigate(`/class/${classId}/exam/${exam.id}`);
+        }
     }
 
     /* ==========================================================================================
@@ -45,21 +49,21 @@ const ExamItem = ({exam}: ExamItemProps) => {
         <Box
             onClick={onNavigate}
             sx={{
-            bgcolor: '#fff',
-            height: '90px',
-            boxShadow: 'none',
-            borderRadius: '5px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '30px',
-            justifyContent: 'space-between',
-            cursor: 'pointer', // Thêm con trỏ để báo hiệu có thể click
-            '&:hover': {
-                borderColor: '#ebf8ff', // Thêm hiệu ứng hover
-                bgcolor: '#ebf8ff'
-            },
-            position: 'relative',
-        }}
+                bgcolor: '#fff',
+                height: '90px',
+                boxShadow: 'none',
+                borderRadius: '5px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '30px',
+                justifyContent: 'space-between',
+                cursor: 'pointer', // Thêm con trỏ để báo hiệu có thể click
+                '&:hover': {
+                    borderColor: '#ebf8ff', // Thêm hiệu ứng hover
+                    bgcolor: '#ebf8ff'
+                },
+                position: 'relative',
+            }}
         >
             <Box sx={{height: '100%', width: '4px', bgcolor: '#31b5ee', position: 'absolute'}}></Box>
             <Box sx={{
@@ -85,13 +89,13 @@ const ExamItem = ({exam}: ExamItemProps) => {
                             component="h3"
                             sx={{fontSize: '18px', fontWeight: '500'}}
                         >
-                            {exam.title.toUpperCase()}
+                            {exam.name.toUpperCase()}
                         </Typography>
 
                         <Typography
                             sx={{fontSize: '14px', fontWeight: '500', color: '#718096', mt: 0.5}}
                         >
-                            Ngày bắt đầu: {exam.startDate}
+                            Ngày bắt đầu: {formatDate(exam.start_time)}
                         </Typography>
                     </Box>
                 </Box>

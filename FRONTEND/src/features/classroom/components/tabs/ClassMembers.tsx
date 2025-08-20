@@ -1,23 +1,24 @@
 import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import MemberItem from "../../../../components/shared/MembersList/MemberItem.tsx";
-import { useOutletContext } from "react-router";
+import {useSelector} from "react-redux";
+import type { RootState } from "../../../../store/rootReducer.ts";
+import type {User} from "../../services/type.ts";
 
-interface Member {
-    id: string;
-    name: string;
-    role: string;
-    avatar?: string;
-}
 
-interface ClassMemberContext {
-    members: Member[]
-}
+
 
 
 const ClassMembers = () => {
 
-    // Lấy dữ liệu từ context
-    const { members } = useOutletContext<ClassMemberContext>();
+    // Lấy dữ liệu từ Redux store
+    const { currentClassDetail } = useSelector((state: RootState) => state.class);
+
+    // Nếu không có dữ liệu, không render gì cả để tránh lỗi
+    if (!currentClassDetail) {
+        return null;
+    }
+
+    const members = currentClassDetail.users;
 
     return (
         <Box sx={{
@@ -54,7 +55,7 @@ const ClassMembers = () => {
 
                         <TableBody>
                             {
-                                members.map((member: Member, index: number) => (
+                                members.map((member: User, index: number) => (
                                     <MemberItem
                                         key={member.id}
                                         index={index + 1}

@@ -1,7 +1,8 @@
 
-import type {ClassData} from "../services/type.ts";
-import {createSlice} from "@reduxjs/toolkit";
-import {createClass, fetchClasses} from "./classThunks.ts";
+import type {ClassData, ClassDetailData} from "../services/type.ts";
+import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
+import {createClass, fetchClassDetails, fetchClasses} from "./classThunks.ts";
+import type {ExamGroup} from "../../../types/exam.ts";
 
 
 // Kiểu dữ liệu cho state của classroom
@@ -9,6 +10,14 @@ interface ClassState {
     classes: ClassData[];
     loading: boolean;
     error: string | null;
+
+    // State mới cho chi tiết lớp học
+    currentClassDetail: ClassDetailData | null; // Lớp học hiện tại
+    currentClassExams: ExamGroup[];             // Các bài thi trong lớp đó
+    isDetailLoading: boolean;                   // Loading chi tiết lớp
+    detailError: string | null;
+    currentClassName: string | null;            // Hiển thị tên trên Main Layout
+
 }
 
 // State khởi tạo
@@ -16,6 +25,12 @@ const initialState: ClassState = {
     classes: [],
     loading: false,
     error: null,
+
+    currentClassDetail: null,
+    currentClassExams: [],
+    isDetailLoading: false,
+    detailError: null,
+    currentClassName: null,
 };
 
 /* ==========================================================================================
@@ -27,7 +42,19 @@ const classSlice = createSlice({
     name: 'class',
     initialState,
     reducers: {
-        // Chưa có!
+        // cập nhật tên lớp học hiện tại -> Main Layout
+        setCurrentClassName: (state, action: PayloadAction<string | null>) => {
+            state.currentClassName = action.payload;
+        },
+
+        // Reset state khi rời trang chi tiết lớp học
+        resetClassDetail: (state) => {
+            state.currentClassDetail = null;
+            state.currentClassExams = [];
+            state.isDetailLoading = false;
+            state.detailError = null;
+            state.currentClassName = null;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -70,8 +97,31 @@ const classSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
+
+
+
+            /* Lấy chi tiết lớp học */
+            // Khi fetchClassDetails đang chạy
+            .addCase(fetchClassDetails.pending, (state) => {
+                state.isDetailLoading = true;
+                state.detailError = null;
+            })
+
+            // Khi fetchClassDetails thành công
+            .addCase(fetchClassDetails.fulfilled, (state, action) => {
+                state.isDetailLoading = false;
+                state.currentClassDetail = action.payload.classDetail
+                state.currentClassExams = action.payload.exams
+                state.currentClassName = action.payload.classDetail.name
+            })
+
+            // Khi fetchClassDetails thất bại
+            .addCase(fetchClassDetails.rejected, (state, action) => {
+                state.isDetailLoading = false;
+                state.detailError = action.payload as string;
+            })
     }
 })
 
-
+export const { setCurrentClassName, resetClassDetail } = classSlice.actions
 export default classSlice.reducer

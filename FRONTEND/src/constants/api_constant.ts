@@ -11,13 +11,14 @@ export const API_ENDPOINTS = {
 
     // Class endpoints
     CLASSES: "/master/class/",
-    CLASS_DETAIL: "/master/class/:id/",
-    CLASS_MEMBERS: "/master/class/:id/members/",
-    CLASS_UPDATE: "/master/class/:id/",
-    CLASS_DELETE: "/master/class/:id/",
+    // CLASS_DETAIL: "/master/class/:id/",
+    // CLASS_MEMBERS: "/master/class/:id/members/",
+    // CLASS_UPDATE: "/master/class/:id/",
+    // CLASS_DELETE: "/master/class/:id/",
 
     // Exam endpoints
     EXAMS: "/exams/",
+    EXAM_GROUPS_BY_CLASS: "/exam_group/",
     EXAM_DETAIL: "/exams/:id/",
     EXAM_QUESTIONS: "/exams/:id/questions/",
     EXAM_RESULTS: "/exams/:id/results/",

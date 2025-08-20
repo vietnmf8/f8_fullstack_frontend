@@ -1,3 +1,5 @@
+/* Class List */
+
 // định nghĩa type cho một đối tượng lớp học từ API
 export interface ClassData {
     id: string;
@@ -12,4 +14,23 @@ export interface CreateClassPayload {
     name: string;
     code: string;
     users: number[]
+}
+
+
+/* Class Detail */
+
+// định nghĩa type -> thành viên trong lớp học
+export interface User {
+    id: number;
+    name: string;
+    status: 'confirmed' | 'pending' | 'rejected';
+    role: 'teacher' | 'student';
+}
+
+// định nghĩa type -> chi tiết dữ liệu của một lớp học
+export interface ClassDetailData {
+    id: number;
+    code: string;
+    name: string;
+    users: User[];
 }

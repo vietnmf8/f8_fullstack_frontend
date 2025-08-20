@@ -1,8 +1,9 @@
-import {Outlet, useNavigate} from "react-router";
+import {Outlet, useLocation, useNavigate} from "react-router";
 import {AppBar, Avatar, Box, Button, IconButton, Menu, MenuItem, Toolbar, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import HomeIcon from '@mui/icons-material/Home';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import {useState} from "react";
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
@@ -17,8 +18,11 @@ import userPlaceholder from '../assets/images/user.jpg'; // Import ảnh placeho
 const MainLayout = () => {
 
     const navigate = useNavigate();
+    const location = useLocation()
     const dispatch: AppDispatch = useDispatch();
+
     const { user } = useSelector((state: RootState) => state.auth);
+    const { currentClassName } = useSelector((state: RootState) => state.class)
 
     /* ==========================================================================================
      * State
@@ -57,6 +61,14 @@ const MainLayout = () => {
     }
 
 
+    // Kiểm tra xem có đang ở trang chi tiết lớp học không?
+    const isClassDetailPage = location.pathname.startsWith('/class/') &&
+        !location.pathname.endsWith('/add')
+
+    /* ==========================================================================================
+     * Giao dien
+     * ========================================================================================== */
+
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
             {/* Header */}
@@ -69,58 +81,84 @@ const MainLayout = () => {
             >
                 <Toolbar disableGutters  // loại bỏ padding mặc định
                          sx={{padding: "0 40px", justifyContent: "space-between", alignItems: 'center'}}>
-                    {/* LOGO */}
                     <Box sx={{
                         display: "flex",
-                        alignItems: "flex-start",
-                        mt: 1,
-                        '&: hover': {
-                            cursor: "pointer",
-                        }
-                    }}
-                         onClick={() => navigate('/classes')}
-                    >
-                        {/* Image */}
-                        <Box
-                            component="img"
-                            src="/src/assets/images/logo.png"
-                            width="40px"
-                            height="31px"
-                            alt="BKStar"
-                            sx={{mr: 1}}
-                        />
+                        alignItems: "center",
+                        gap: 1,
+                    }}>
+                        {/* LOGO */}
+                        <Box sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            mt: 1,
+                            '&: hover': {
+                                cursor: "pointer",
+                            }
+                        }}
+                             onClick={() => navigate('/classes')}
+                        >
+                            {/* Image */}
+                            <Box
+                                component="img"
+                                src="/src/assets/images/logo.png"
+                                width="40px"
+                                height="31px"
+                                alt="BKStar"
+                                sx={{mr: 1}}
+                            />
 
-                        {/* BK Classroom */}
-                        <Box display="flex" flexDirection="column">
-                            <Typography
-                                variant="h6"
-                                component="span"
-                                sx={{
-                                    color: '#113249',
-                                    fontWeight: 'bold',
-                                    fontSize: '24px',
-                                    lineHeight: '0.8',
-                                }}
+                            {/* BK Classroom */}
+                            <Box display="flex" flexDirection="column">
+                                <Typography
+                                    variant="h6"
+                                    component="span"
+                                    sx={{
+                                        color: '#113249',
+                                        fontWeight: 'bold',
+                                        fontSize: '24px',
+                                        lineHeight: '0.8',
+                                    }}
 
-                            >
-                                BK
-                                <strong style={{color: '#ff8e03'}}>Star</strong>
-                            </Typography>
+                                >
+                                    BK
+                                    <strong style={{color: '#ff8e03'}}>Star</strong>
+                                </Typography>
 
-                            <Typography
-                                variant="h6"
-                                component="span"
-                                sx={{
-                                    color: '#113249',
-                                    fontWeight: 'bold',
-                                    fontSize: '12px',
-                                }}
+                                <Typography
+                                    variant="h6"
+                                    component="span"
+                                    sx={{
+                                        color: '#113249',
+                                        fontWeight: 'bold',
+                                        fontSize: '12px',
+                                    }}
 
-                            >
-                                Classroom
-                            </Typography>
+                                >
+                                    Classroom
+                                </Typography>
+                            </Box>
                         </Box>
+
+                        {/* Breadcrumb - Hiển thị tên lớp học */}
+                        {
+                            isClassDetailPage && currentClassName && (
+                                <>
+                                    <ChevronRightIcon sx={{ color: '#999' }} />
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            color: '#113249',
+                                            fontWeight: '500',
+                                            fontSize: '20px',
+                                        }}
+                                    >
+                                        {currentClassName}
+                                    </Typography>
+                                </>
+                            )
+                        }
                     </Box>
+
 
 
                     {/* Menu Navigation */}

@@ -5,53 +5,85 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import MembersList from "../../../../components/shared/MembersList/MembersList.tsx";
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import { useOutletContext } from 'react-router';
+import type {RootState} from "../../../../store/rootReducer.ts";
+import {useSelector} from "react-redux";
+import {toast} from "react-toastify";
+import {format} from 'date-fns';
+import {vi} from 'date-fns/locale';
+
 
 /* ==========================================================================================
  * Interface
  * ========================================================================================== */
 
-interface ClassOverViewContext {
-    classData: {
-        id: string;
-        name: string;
-        teacher: string;
-        memberCount: number;
-        testCount: number;
-        classId: string;
-    };
-    members: Array<{
-        id: string;
-        name: string;
-        role: string;
-        avatar?: string;
-    }>;
-    recentActivities: Array<{
-        id: string;
-        title: string;
-        time: string;
-        user: string;
-    }>;
 
-}
 
 const ClassOverview = () => {
 
     // Lấy dữ liệu từ context được cung cấp bởi <Outlet />
-    const { classData, members, recentActivities } = useOutletContext<ClassOverViewContext>();
+    const { currentClassDetail, currentClassExams } = useSelector((state: RootState) => state.class);
 
     /* ==========================================================================================
      * Logic
      * ========================================================================================== */
 
-    const onCopyClassId = () => {
-        // Logic copy mã lớp
-        console.log('Copy mã lớp:', classData.classId);
+    // // Sao chép mã lớp
+    // const onCopyClassCode = () => {
+    //     if (currentClassDetail?.code) {
+    //         navigator.clipboard.writeText(currentClassDetail.code)
+    //             .then(() => {
+    //                 toast.success("Đã sao chép mã lớp!");
+    //             })
+    //             .catch(() => {
+    //                 toast.error("Sao chép thất bại!");
+    //             });
+    //     }
+    // }
+
+
+    // Logic copy mã lớp
+    const onCopyClassCode = async () => {
+        if (currentClassDetail?.code) {
+            try {
+                await navigator.clipboard.writeText(currentClassDetail.code)
+                toast.success("Đã sao chép mã lớp!");
+            }
+            catch {
+                toast.error("Sao chép thất bại!");
+            }
+        }
+    }
+
+    // Lấy chữ cái đầu cho Avatar
+    const getInitials = (name: string): string => {
+        const words = name.trim().split(/\s+/);
+        if (words.length > 1) {
+            return `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase();
+        }
+        return words[0] ? words[0][0].toUpperCase() : '';
+    }
+
+    // Lấy tên giáo viên
+    const teacher = currentClassDetail?.users.find(user => user.role === 'teacher')
+
+
+    // Format ngày tháng
+    const formatDate = (dateString: string) => {
+        try {
+            return format(new Date(dateString), "HH:mm, EEEE, dd/MM/yyyy", { locale: vi });
+        } catch {
+            return "Ngày không hợp lệ";
+        }
     }
 
     /* ==========================================================================================
      * Giao diện
      * ========================================================================================== */
+
+    // Nếu không có dữ liệu, không render
+    if (!currentClassDetail) {
+        return null;
+    }
 
     return (
         <Box sx={{
@@ -92,7 +124,7 @@ const ClassOverview = () => {
                                         }}
 
                                     >
-                                        {classData.name}
+                                        {currentClassDetail.name}
                                     </Typography>
                                 </Box>
 
@@ -100,7 +132,7 @@ const ClassOverview = () => {
                                 <Typography
                                     sx={{color: 'white', fontSize: '16px'}}
                                 >
-                                    Giáo viên: {classData.teacher}
+                                    Giáo viên: {teacher?.name || ''}
                                 </Typography>
                             </Box>
 
@@ -115,7 +147,7 @@ const ClassOverview = () => {
                                     variant="outlined"
                                     size="small"
                                     startIcon={<ContentCopyIcon/>}
-                                    onClick={onCopyClassId}
+                                    onClick={onCopyClassCode}
                                     sx={{
                                         color: 'white',
                                         borderColor: 'white',
@@ -132,14 +164,14 @@ const ClassOverview = () => {
 
                                 <AvatarGroup max={4} sx={{ml: 'auto'}}>
                                     {
-                                        members.map((member, index) => (
+                                        currentClassDetail.users.map((member, index) => (
                                             <Avatar
                                                 key={member.id}
                                                 sx={{
                                                     bgcolor: ['#e91e63', '#9c27b0', '#673ab7', '#3f51b5'][index % 4]
                                                 }}
                                             >
-                                                {member.name.charAt(0)}
+                                                {getInitials(member.name)}
                                             </Avatar>
                                         ))
                                     }
@@ -175,7 +207,7 @@ const ClassOverview = () => {
                                                 marginLeft: 2
 
                                             }}>
-                                            {classData.memberCount} thành viên
+                                            {currentClassDetail.users.length} thành viên
                                         </Typography>
                                     </Card>
                                 </Grid>
@@ -204,7 +236,7 @@ const ClassOverview = () => {
                                                 marginLeft: 2
 
                                             }}>
-                                            {classData.testCount} bài kiểm tra
+                                            {currentClassExams.length} bài kiểm tra
                                         </Typography>
                                     </Card>
                                 </Grid>
@@ -227,7 +259,7 @@ const ClassOverview = () => {
                                 height: '100px'
                             }}
                         >
-                            <MembersList members={members}/>
+                            <MembersList members={currentClassDetail.users}/>
                         </Card>
 
                     </Grid>
@@ -284,35 +316,41 @@ const ClassOverview = () => {
 
                             {/* Hoạt động */}
                             <Box sx={{display: 'flex', flexDirection: 'column'}}>
-                                {recentActivities.map((activity, index) => (
-                                    <Box key={index} sx={{
-                                        padding: '15px 20px',
-                                        '&: hover': {
-                                            bgcolor: '#edf2f7',
-                                            cursor: 'pointer'
-                                        }
-                                    }}>
-                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
-                                            <Avatar sx={{width: 48, height: 48, bgcolor: '#31b5ee'}}>
-                                                {activity.user.charAt(0)}
-                                            </Avatar>
-                                            <Box>
-                                                <Typography variant="body2" sx={{fontWeight: 'medium', fontSize: '16px'}}>
-                                                    Bài thi <strong style={{color: '#3182ce'}}>{activity.title}</strong> vừa được tải lên
-                                                </Typography>
 
-                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
-                                                    <CalendarTodayIcon sx={{fontSize: '14px'}}/>
-                                                    <Typography variant="caption" color="text.secondary" sx={{fontSize: '14px'}}>
-                                                        {activity.time}
-                                                    </Typography>
+                                {
+                                    currentClassExams.length > 0 ?
+                                        currentClassExams.map((activity) => (
+                                            <Box key={activity.id} sx={{
+                                                padding: '15px 20px',
+                                                '&: hover': {
+                                                    bgcolor: '#edf2f7',
+                                                    cursor: 'pointer'
+                                                }
+                                            }}>
+                                                <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                                                    <Avatar sx={{width: 48, height: 48, bgcolor: '#31b5ee'}} src="/src/assets/images/questionDetail.jpg">
+                                                    </Avatar>
+                                                    <Box>
+                                                        <Typography variant="body2" sx={{fontWeight: 'medium', fontSize: '16px'}}>
+                                                            Bài thi <strong style={{color: '#3182ce'}}>{activity.name}</strong> vừa được tải lên
+                                                        </Typography>
+
+                                                        <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
+                                                            <CalendarTodayIcon sx={{fontSize: '14px'}}/>
+                                                            <Typography variant="caption" color="text.secondary" sx={{fontSize: '14px'}}>
+                                                                {formatDate(activity.created_at)}
+                                                            </Typography>
+                                                        </Box>
+                                                    </Box>
                                                 </Box>
                                             </Box>
-                                        </Box>
-
-
-                                    </Box>
-                                ))}
+                                        )) :
+                                        (
+                                            <Typography sx={{ textAlign: 'center', mt: 3, color: 'text.secondary' }}>
+                                                Chưa có hoạt động nào.
+                                            </Typography>
+                                        )
+                                }
                             </Box>
                         </Box>
                     </Grid>

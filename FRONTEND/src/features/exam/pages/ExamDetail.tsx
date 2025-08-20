@@ -1,18 +1,29 @@
-import {Box, Breadcrumbs, Button, Grid, Link, Typography} from "@mui/material"
+import {Box, Breadcrumbs, Button, CircularProgress, Grid, Link, Typography} from "@mui/material"
 import {useNavigate, useParams} from "react-router";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import {mockExamDetail, mockExamParts, mockExamSubmissions} from "../../../data";
+import {mockExamParts, mockExamSubmissions} from "../../../data";
 import AddIcon from "@mui/icons-material/Add";
 import ExamPartCard from "../components/ExamPartCard.tsx";
 import ExamSubmissionCard from "../components/ExamSubmissionCard.tsx";
-import {useState} from "react";
-import EditExamDialog from "../components/EditExamDialog.tsx";
+import {useEffect, useState} from "react";
+import ExamDialog from "../components/ExamDialog.tsx";
 import ConfirmDeleteExamDialog from "../components/ConfirmDeleteExamDialog";
+import {useDispatch, useSelector} from "react-redux";
+import type {AppDispatch} from "../../../store";
+import type { RootState } from "../../../store/rootReducer.ts";
+import {fetchExamsByClass, updateExamAction} from "../store/examThunks.ts";
+import type {CreateExamPayload} from "../services/type.ts";
+import {fetchClassDetails} from "../../classroom/store/classThunks.ts";
 
 const ExamDetail = () => {
 
     const { classId, examId } = useParams<{ classId: string, examId: string }>();
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
+
+    // Lấy chi tiết bài thi từ Redux store
+    const { exams, loading } = useSelector((state: RootState) => state.exam);
+    const examDetail = exams.find(exam => exam.id === Number(examId));
 
     /* ==========================================================================================
      * State
@@ -24,6 +35,17 @@ const ExamDetail = () => {
     // Trạng thái mở Dialog Delete
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
+
+    /* ==========================================================================================
+     * useEffect
+     * ========================================================================================== */
+
+    // Fetch danh sách bài thi
+    useEffect(() => {
+        if (classId && exams.length === 0) {
+            dispatch(fetchExamsByClass(classId));
+        }
+    }, [classId, exams.length, dispatch]);
 
     /* ==========================================================================================
      * Logic
@@ -54,6 +76,35 @@ const ExamDetail = () => {
         onCloseDeleteDialog(); // Đóng dialog sau khi xử lý
     };
 
+    // cập nhật bài thi
+    const onUpdateExam = async (data: Omit<CreateExamPayload, 'class_id'>) => {
+        if (examId && examDetail && classId) {
+
+            // Luôn đảm bảo class_id gửi đi là một number
+            const classIdForPayload = typeof examDetail.clas === 'number'
+                ? examDetail.clas
+                : examDetail.clas.id;
+
+            const fullPayload: CreateExamPayload = {
+                ...data,
+                class_id: classIdForPayload
+            };
+
+
+            try {
+                await dispatch(updateExamAction({ id: Number(examId), data: fullPayload })).unwrap();
+                dispatch(fetchClassDetails(classId));
+                onCloseEditDialog();
+            }
+            catch (error) {
+                console.error("Cập nhật thất bại:", error);
+            }
+        }
+    }
+
+    /* ==========================================================================================
+    * Giao diện
+    * ========================================================================================== */
 
     /* Breadcrumbs */
     const breadcrumbs = [
@@ -84,10 +135,15 @@ const ExamDetail = () => {
         </Typography>
     ];
 
+    if (loading && !examDetail) {
+        return <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>;
+    }
 
-    /* ==========================================================================================
-     * Giao diện
-     * ========================================================================================== */
+    if (!examDetail) {
+        return <Typography sx={{ p: 4 }}>Không tìm thấy thông tin bài thi hoặc bài thi không thuộc lớp này.</Typography>;
+    }
+
+
     return (
         <Box sx={{
             display: 'flex',
@@ -121,15 +177,15 @@ const ExamDetail = () => {
                         {/* Left */}
                         <Box>
                             <Typography sx={{fontSize: '16px', fontWeight: '500'}}>
-                                Ten bài thi: {mockExamDetail.name}
+                                Ten bài thi: {examDetail.name}
                             </Typography>
 
                             <Typography sx={{fontSize: '16px', fontWeight: '500'}}>
-                                Ngày bắt đầu: {mockExamDetail.startDate}
+                                Ngày bắt đầu: {new Date(examDetail.start_time).toLocaleDateString('vi-VN')}
                             </Typography>
 
                             <Typography sx={{fontSize: '16px', fontWeight: '500'}}>
-                                Thời gian chờ giữa các đề bài: {mockExamDetail.delayBetweenParts}
+                                Thời gian chờ giữa các đề bài: {examDetail.await_time}
                             </Typography>
                         </Box>
 
@@ -270,10 +326,16 @@ const ExamDetail = () => {
 
 
             {/* Dialog chỉnh sửa */}
-            <EditExamDialog
+            <ExamDialog
                 open={openEditDialog}
                 onClose={onCloseEditDialog}
-                examData={mockExamDetail}
+                mode="edit"
+                initialData={{
+                    name: examDetail.name,
+                    await_time: String(examDetail.await_time),
+                    start_time: examDetail.start_time,
+                }}
+                onSubmit={onUpdateExam}
             />
 
             {/* Dialog xác nhận xoá */}
