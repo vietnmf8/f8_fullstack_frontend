@@ -1,5 +1,5 @@
 import {jwtDecode} from "jwt-decode";
-import type {DecodedUser} from "./type.ts";
+import type {DecodedUser} from "@/features/auth/services/type.ts";
 
 // Token đã hết hạn hay chưa?
 // true -> Hết hạn | false -> Còn hạn

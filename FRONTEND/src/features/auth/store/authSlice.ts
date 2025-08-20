@@ -1,7 +1,7 @@
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
-import type {DecodedUser} from "../services/type.ts";
-import {checkAuth, loginUser, registerUser} from "./authThunks.ts";
+import type {DecodedUser} from "@/features/auth/services/type.ts";
+import {checkAuth, loginUser, registerUser} from "@/features/auth/store/authThunks.ts";
 import {jwtDecode} from "jwt-decode";
 
 // Kiểu dữ liệu cho state của auth

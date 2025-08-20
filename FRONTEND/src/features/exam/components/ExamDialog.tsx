@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {useEffect, useState } from "react";
-import type { CreateExamPayload } from "../services/type";
+import type { CreateExamPayload } from "@/features/exam/services/type";
 
 interface FormData {
     name: string;

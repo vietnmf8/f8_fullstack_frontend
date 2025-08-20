@@ -2,9 +2,9 @@ import {useNavigate, useParams} from "react-router";
 import {useMemo, useState} from "react";
 import {Box, Breadcrumbs, Button, CircularProgress, Link, List, Tab, Tabs, Typography} from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import {mockExamDetail, mockMarkingData} from "../../../data";
+import {mockExamDetail, mockMarkingData} from "@/data";
 import * as React from "react";
-import MarkingAnswerItem from "../components/MarkingAnswerItem.tsx";
+import MarkingAnswerItem from "@/features/exam/components/MarkingAnswerItem.tsx";
 
 
 

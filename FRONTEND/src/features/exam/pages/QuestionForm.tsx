@@ -1,8 +1,6 @@
-
-// Định nghĩa kiểu dữ liệu cho thông tin đề bài
 import {useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
-import {mockExamDetail, mockExamParts, type Question} from "../../../data";
+import {mockExamDetail, mockExamParts, type Question} from "@/data";
 import {
     Box,
     Breadcrumbs,
@@ -18,8 +16,10 @@ import {
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import * as React from "react";
-import AnswerOptions from "../components/AnswerOptions.tsx";
+import AnswerOptions from "@/features/exam/components/AnswerOptions.tsx";
 
+
+// Định nghĩa kiểu dữ liệu cho thông tin đề bài
 interface PartDetail {
     name: string;
     code: string;

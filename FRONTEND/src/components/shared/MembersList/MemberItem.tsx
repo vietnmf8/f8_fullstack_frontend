@@ -1,7 +1,7 @@
 import {Chip, TableCell, TableRow, Typography} from "@mui/material";
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import {memo} from "react";
-import type {User} from "../../../features/classroom/services/type.ts";
+import type {User} from "@/features/classroom/services/type.ts";
 
 interface MemberItemProps {
     index: number;

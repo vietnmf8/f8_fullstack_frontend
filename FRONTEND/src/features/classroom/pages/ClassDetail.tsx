@@ -1,15 +1,15 @@
 import {Box, CircularProgress, Typography} from "@mui/material";
 import {Outlet, useLocation, useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
-import TabContainer from "../../../components/shared/TabContainer/TabContainer.tsx";
+import TabContainer from "@/components/shared/TabContainer/TabContainer.tsx";
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import PeopleIcon from '@mui/icons-material/People';
 import InfoIcon from '@mui/icons-material/Info';
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../../../store";
-import type {RootState} from "../../../store/rootReducer.ts";
-import {fetchClassDetails} from "../store/classThunks.ts";
-import {resetClassDetail} from "../store/classSlice.ts";
+import type {AppDispatch} from "@/store";
+import type {RootState} from "@/store/rootReducer.ts";
+import {fetchClassDetails} from "@/features/classroom/store/classThunks.ts";
+import {resetClassDetail} from "@/features/classroom/store/classSlice.ts";
 
 /* ==========================================================================================
    * Tabs

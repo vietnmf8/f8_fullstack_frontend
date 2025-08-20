@@ -1,10 +1,10 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {createClassApi, getClassDetailApi, getClassListApi} from "../services/classApi.ts";
+import {createClassApi, getClassDetailApi, getClassListApi} from "@/features/classroom/services/classApi.ts";
 import {AxiosError} from "axios";
 import {toast} from "react-toastify";
-import type {RootState} from "../../../store/rootReducer.ts";
-import type {CreateClassPayload} from "../services/type.ts";
-import {getExamsByClass} from "../../exam/services/examApi.ts";
+import type {RootState} from "@/store/rootReducer.ts";
+import type {CreateClassPayload} from "@/features/classroom/services/type.ts";
+import {getExamsByClass} from "@/features/exam/services/examApi.ts";
 
 
 

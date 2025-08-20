@@ -1,8 +1,8 @@
 import {Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import MemberItem from "../../../../components/shared/MembersList/MemberItem.tsx";
+import MemberItem from "@/components/shared/MembersList/MemberItem.tsx";
 import {useSelector} from "react-redux";
-import type { RootState } from "../../../../store/rootReducer.ts";
-import type {User} from "../../services/type.ts";
+import type { RootState } from "@/store/rootReducer.ts";
+import type {User} from "@/features/classroom/services/type.ts";
 
 
 

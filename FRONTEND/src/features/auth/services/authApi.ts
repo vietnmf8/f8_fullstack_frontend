@@ -1,6 +1,6 @@
-import api from "../../../plugins/api.ts";
-import type {AuthResponse, LoginPayLoad, RefreshTokenPayload, RegisterPayLoad} from "./type.ts";
-import {API_ENDPOINTS} from "../../../constants/api_constant.ts";
+import api from "@/plugins/api.ts";
+import type {AuthResponse, LoginPayLoad, RefreshTokenPayload, RegisterPayLoad} from "@/features/auth/services/type.ts";
+import {API_ENDPOINTS} from "@/constants/api_constant.ts";
 
 
 /* Gọi API để đăng nhập */

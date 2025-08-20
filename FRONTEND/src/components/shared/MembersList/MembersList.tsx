@@ -1,6 +1,6 @@
 import {Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import MemberItem from "./MemberItem.tsx";
-import type {User} from "../../../features/classroom/services/type.ts";
+import type {User} from "@/features/classroom/services/type.ts";
 
 
 

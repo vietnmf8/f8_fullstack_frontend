@@ -1,7 +1,7 @@
 import {Box, Typography} from "@mui/material";
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import {useNavigate, useParams} from "react-router";
-import type {ExamGroup} from "../../../types/exam.ts";
+import type {ExamGroup} from "@/types/exam.ts";
 
 interface ExamItemProps {
     exam: ExamGroup

@@ -1,8 +1,8 @@
 
-import type {ClassData, ClassDetailData} from "../services/type.ts";
+import type {ClassData, ClassDetailData} from "@/features/classroom/services/type.ts";
 import {createSlice, type PayloadAction} from "@reduxjs/toolkit";
-import {createClass, fetchClassDetails, fetchClasses} from "./classThunks.ts";
-import type {ExamGroup} from "../../../types/exam.ts";
+import {createClass, fetchClassDetails, fetchClasses} from "@/features/classroom/store/classThunks.ts";
+import type {ExamGroup} from "@/types/exam.ts";
 
 
 // Kiểu dữ liệu cho state của classroom

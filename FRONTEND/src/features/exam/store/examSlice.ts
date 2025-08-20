@@ -1,6 +1,6 @@
-import type {ExamGroup} from "../../../types/exam.ts";
+import type {ExamGroup} from "@/types/exam.ts";
 import {createSlice} from "@reduxjs/toolkit";
-import {createExamAction, fetchExamsByClass, updateExamAction} from "./examThunks.ts";
+import {createExamAction, fetchExamsByClass, updateExamAction} from "@/features/exam/store/examThunks.ts";
 
 interface ExamState {
     exams: ExamGroup[];

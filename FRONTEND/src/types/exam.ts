@@ -1,5 +1,5 @@
 // Dữ liệu trả về từ API cho một nhóm bài thi (ExamGroup) -> nhóm bài thi
-import type {ClassDetailData} from "../features/classroom/services/type.ts";
+import type {ClassDetailData} from "@/features/classroom/services/type.ts";
 
 export interface ExamGroup {
     id: number;

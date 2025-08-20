@@ -1,6 +1,6 @@
-import type {ClassData, ClassDetailData, CreateClassPayload} from "./type.ts";
-import api from "../../../plugins/api.ts";
-import {API_ENDPOINTS} from "../../../constants/api_constant.ts";
+import type {ClassData, ClassDetailData, CreateClassPayload} from "@/features/classroom/services/type.ts";
+import api from "@/plugins/api.ts";
+import {API_ENDPOINTS} from "@/constants/api_constant.ts";
 
 
 /* Class List */

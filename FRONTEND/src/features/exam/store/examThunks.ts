@@ -1,8 +1,8 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {createExam, getExamsByClass, updateExam} from "../services/examApi.ts";
+import {createExam, getExamsByClass, updateExam} from "@/features/exam/services/examApi.ts";
 import {AxiosError} from "axios";
 import {toast} from "react-toastify";
-import type {CreateExamPayload, UpdateExamActionPayload} from "../services/type.ts";
+import type {CreateExamPayload, UpdateExamActionPayload} from "@/features/exam/services/type.ts";
 
 
 // lấy danh sách bài thi

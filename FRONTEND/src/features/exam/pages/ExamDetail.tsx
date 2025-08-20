@@ -1,19 +1,19 @@
 import {Box, Breadcrumbs, Button, CircularProgress, Grid, Link, Typography} from "@mui/material"
 import {useNavigate, useParams} from "react-router";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import {mockExamParts, mockExamSubmissions} from "../../../data";
+import {mockExamParts, mockExamSubmissions} from "@/data";
 import AddIcon from "@mui/icons-material/Add";
-import ExamPartCard from "../components/ExamPartCard.tsx";
-import ExamSubmissionCard from "../components/ExamSubmissionCard.tsx";
+import ExamPartCard from "@/features/exam/components/ExamPartCard.tsx";
+import ExamSubmissionCard from "@/features/exam/components/ExamSubmissionCard.tsx";
 import {useEffect, useState} from "react";
-import ExamDialog from "../components/ExamDialog.tsx";
-import ConfirmDeleteExamDialog from "../components/ConfirmDeleteExamDialog";
+import ExamDialog from "@/features/exam/components/ExamDialog.tsx";
+import ConfirmDeleteExamDialog from "@/features/exam/components/ConfirmDeleteExamDialog";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../../../store";
-import type { RootState } from "../../../store/rootReducer.ts";
-import {fetchExamsByClass, updateExamAction} from "../store/examThunks.ts";
-import type {CreateExamPayload} from "../services/type.ts";
-import {fetchClassDetails} from "../../classroom/store/classThunks.ts";
+import type {AppDispatch} from "@/store";
+import type { RootState } from "@/store/rootReducer.ts";
+import {fetchExamsByClass, updateExamAction} from "@/features/exam/store/examThunks.ts";
+import type {CreateExamPayload} from "@/features/exam/services/type.ts";
+import {fetchClassDetails} from "@/features/classroom/store/classThunks.ts";
 
 const ExamDetail = () => {
 

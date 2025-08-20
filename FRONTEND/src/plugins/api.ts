@@ -1,12 +1,12 @@
 import axios, {AxiosError, type InternalAxiosRequestConfig} from 'axios'
 import Cookies from "js-cookie";
-import type {FailedRequest} from "../features/auth/services/type.ts";
-import {isTokenExpired} from "../features/auth/services/authService.ts";
-import {logout, setToken} from "../features/auth/store/authSlice.ts";
+import type {FailedRequest} from "@/features/auth/services/type.ts";
+import {isTokenExpired} from "@/features/auth/services/authService.ts";
+import {logout, setToken} from "@/features/auth/store/authSlice.ts";
 import {toast} from "react-toastify";
-import {refreshTokenApi} from "../features/auth/services/authApi.ts";
+import {refreshTokenApi} from "@/features/auth/services/authApi.ts";
 import type {Store} from "@reduxjs/toolkit";
-import {API_BASE_URL, API_ENDPOINTS} from "../constants/api_constant.ts";
+import {API_BASE_URL, API_ENDPOINTS} from "@/constants/api_constant.ts";
 /* ==========================================================================================
  * Cấu hình Axios
  * ========================================================================================== */

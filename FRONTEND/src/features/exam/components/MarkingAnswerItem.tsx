@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { type StudentAnswer } from "../../../data";
+import { type StudentAnswer } from "@/data";
 
 interface MarkingAnswerProps {
     answer: StudentAnswer;

@@ -7,11 +7,11 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import {useState} from "react";
 import * as React from "react";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../store";
-import type {RootState} from "../store/rootReducer.ts";
-import {logout} from "../features/auth/store/authSlice.ts";
+import type {AppDispatch} from "@/store";
+import type {RootState} from "@/store/rootReducer.ts";
+import {logout} from "@/features/auth/store/authSlice.ts";
 import {toast} from "react-toastify";
-import userPlaceholder from '../assets/images/user.jpg'; // Import ảnh placeholder
+import userPlaceholder from '@/assets/images/user.jpg'; // Import ảnh placeholder
 
 
 

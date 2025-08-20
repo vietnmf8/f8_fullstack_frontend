@@ -1,12 +1,12 @@
 /* Xử lý đăng nhập */
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import type {DecodedUser, LoginPayLoad, RegisterPayLoad} from "../services/type.ts";
-import {loginApi, refreshTokenApi, registerApi} from "../services/authApi.ts";
+import type {DecodedUser, LoginPayLoad, RegisterPayLoad} from "@/features/auth/services/type.ts";
+import {loginApi, refreshTokenApi, registerApi} from "@/features/auth/services/authApi.ts";
 import Cookies from 'js-cookie';
 import {jwtDecode} from "jwt-decode";
 import {AxiosError} from "axios";
-import {isTokenExpired} from "../services/authService.ts";
-import {logout} from "./authSlice.ts";
+import {isTokenExpired} from "@/features/auth/services/authService.ts";
+import {logout} from "@/features/auth/store/authSlice.ts";
 
 
 // Hành động: Đăng nhập

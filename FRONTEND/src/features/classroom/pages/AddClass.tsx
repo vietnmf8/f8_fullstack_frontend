@@ -2,10 +2,10 @@ import {useNavigate} from "react-router";
 import {Box, Button, CircularProgress, TextField, Typography} from "@mui/material";
 import {useEffect, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import type { AppDispatch } from "../../../store";
-import type { RootState } from "../../../store/rootReducer";
+import type { AppDispatch } from "@/store";
+import type { RootState } from "@/store/rootReducer";
 import {toast} from "react-toastify";
-import {createClass} from "../store/classThunks.ts";
+import {createClass} from "@/features/classroom/store/classThunks.ts";
 
 const AddClass = () => {
 

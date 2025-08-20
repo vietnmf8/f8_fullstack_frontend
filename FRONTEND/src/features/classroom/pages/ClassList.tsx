@@ -3,12 +3,12 @@ import {useEffect, useMemo, useState} from "react";
 import {Box, Button, CircularProgress, Grid, InputAdornment, TextField, Typography} from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
-import ClassCard from '../components/ClassCard.tsx'
+import ClassCard from '@/features/classroom/components/ClassCard.tsx'
 import {useDispatch, useSelector} from "react-redux";
-import type {RootState} from "../../../store/rootReducer.ts";
-import type {AppDispatch} from "../../../store";
-import {fetchClasses} from "../store/classThunks.ts";
-import {useDebounce} from "../../../hooks/useDebounce.ts";
+import type {RootState} from "@/store/rootReducer.ts";
+import type {AppDispatch} from "@/store";
+import {fetchClasses} from "@/features/classroom/store/classThunks.ts";
+import {useDebounce} from "@/hooks/useDebounce.ts";
 
 
 const ClassList = () => {

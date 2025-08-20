@@ -2,11 +2,11 @@ import {useNavigate} from "react-router";
 import {useEffect, useState} from "react";
 import {Box, Button, CircularProgress, IconButton, InputAdornment, Paper, TextField, Typography} from "@mui/material";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../../../store";
-import type {RootState} from "../../../store/rootReducer.ts";
-import {registerUser} from "../store/authThunks.ts";
+import type {AppDispatch} from "@/store";
+import type {RootState} from "@/store/rootReducer.ts";
+import {registerUser} from "@/features/auth/store/authThunks.ts";
 import {toast} from "react-toastify";
-import {clearError} from "../store/authSlice.ts";
+import {clearError} from "@/features/auth/store/authSlice.ts";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 

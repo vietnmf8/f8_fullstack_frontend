@@ -1,7 +1,7 @@
-import api from "../../../plugins/api.ts";
-import type {ExamGroup} from "../../../types/exam.ts";
-import {API_ENDPOINTS} from "../../../constants/api_constant.ts";
-import type {CreateExamPayload, UpdateExamActionPayload} from "./type.ts";
+import api from "@/plugins/api.ts";
+import type {ExamGroup} from "@/types/exam.ts";
+import {API_ENDPOINTS} from "@/constants/api_constant.ts";
+import type {CreateExamPayload, UpdateExamActionPayload} from "@/features/exam/services/type.ts";
 
 
 // API để lấy danh sách bài thi của một lớp học

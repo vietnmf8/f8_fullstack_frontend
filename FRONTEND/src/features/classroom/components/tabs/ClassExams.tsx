@@ -1,17 +1,17 @@
 import {Alert, Box, Button, CircularProgress, Grid, InputAdornment, TextField, Typography} from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import ExamItem from "../ExamItem.tsx";
+import ExamItem from "@/features/classroom/components/ExamItem.tsx";
 import {useMemo, useState} from "react";
-import ExamDialog from "../../../exam/components/ExamDialog.tsx";
+import ExamDialog from "@/features/exam/components/ExamDialog.tsx";
 import {useParams} from "react-router";
 import {useDispatch, useSelector} from "react-redux";
-import type {AppDispatch} from "../../../../store";
-import {useDebounce} from "../../../../hooks/useDebounce.ts";
-import type {RootState} from "../../../../store/rootReducer.ts";
-import {createExamAction} from "../../../exam/store/examThunks.ts";
-import type {CreateExamPayload} from "../../../exam/services/type.ts";
-import {fetchClassDetails} from "../../store/classThunks.ts";
+import type {AppDispatch} from "@/store";
+import {useDebounce} from "@/hooks/useDebounce.ts";
+import type {RootState} from "@/store/rootReducer.ts";
+import {createExamAction} from "@/features/exam/store/examThunks.ts";
+import type {CreateExamPayload} from "@/features/exam/services/type.ts";
+import {fetchClassDetails} from "@/features/classroom/store/classThunks.ts";
 
 const ClassExams = () => {
 

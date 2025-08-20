@@ -1,9 +1,9 @@
 import {createRoot} from 'react-dom/client'
 import { RouterProvider } from 'react-router'
 import {CssBaseline, ThemeProvider} from "@mui/material";
-import theme from './theme';
-import router from "./router";
-import store from "./store";
+import theme from '@/theme';
+import router from "@/router";
+import store from "@/store";
 import {Provider} from "react-redux";
 import {ToastContainer} from "react-toastify";
 

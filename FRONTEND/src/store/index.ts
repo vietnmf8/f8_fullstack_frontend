@@ -1,6 +1,6 @@
 import {configureStore} from "@reduxjs/toolkit";
-import rootReducer from "./rootReducer.ts";
-import { setupInterceptors } from "../plugins/api.ts";
+import rootReducer from "@/store/rootReducer.ts";
+import { setupInterceptors } from "@/plugins/api.ts";
 
 const store = configureStore({
     reducer: rootReducer,
